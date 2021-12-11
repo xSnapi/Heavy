@@ -24,7 +24,8 @@ project "Heavy"
 
    includedirs {
       "core",
-      "../include"
+      "../include",
+      "../include/Optick"
    }
 
    defines { 
@@ -45,10 +46,11 @@ project "Heavy"
          "../libs/SFML/lib/Debug",
          "../libs/SFML/extlibs",
 
-         "../libs/ImGui/lib/Debug",
+         "../libs/Optick/lib/Debug"
       }
 
       links {
+         "OptickCore.lib",
          "opengl32.lib",
          "openal32.lib",
          "freetype.lib",
@@ -74,10 +76,11 @@ project "Heavy"
          "../libs/SFML/lib/Release",
          "../libs/SFML/extlibs",
 
-         "../libs/ImGui/lib/Debug",
+         "../libs/Optick/lib/Release",
       }
 
       links {
+         "OptickCore.lib",
          "opengl32.lib",
          "openal32.lib",
          "freetype.lib",
