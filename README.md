@@ -1,4 +1,4 @@
-![Heavy Engine](https://github.com/xSnapi/Heavy/blob/dev/Images/heavy.png?raw=true)
+![Heavy Engine](https://github.com/xSnapi/Heavy/blob/master/Images/heavy.png?raw=true)
 
 # Heavy
 ## Engine for SFML games
