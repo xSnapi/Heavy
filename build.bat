@@ -1,5 +1,2 @@
-cd Sandbox
-mkdir bin
-xcopy "..\libs\SFML\lib\PDB" bin
-cd..
+xcopy /y "libs\SFML\lib\PDB" "Sandbox\bin\Debug\*"
 start vendor\premake5.exe vs2022

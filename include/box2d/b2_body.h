@@ -22,7 +22,7 @@
 
 #ifndef B2_BODY_H
 #define B2_BODY_H
-
+#pragma warning(disable : 26812)
 #include "b2_api.h"
 #include "b2_math.h"
 #include "b2_shape.h"
@@ -64,6 +64,7 @@ struct B2_API b2BodyDef
 		awake = true;
 		fixedRotation = false;
 		bullet = false;
+#pragma warning(disable : 26812)
 		type = b2_staticBody;
 		enabled = true;
 		gravityScale = 1.0f;
@@ -874,5 +875,5 @@ inline const b2World* b2Body::GetWorld() const
 {
 	return m_world;
 }
-
+#pragma warning(default : 26812)
 #endif

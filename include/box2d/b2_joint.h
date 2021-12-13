@@ -22,7 +22,7 @@
 
 #ifndef B2_JOINT_H
 #define B2_JOINT_H
-
+#pragma warning(disable : 26812)
 #include "b2_api.h"
 #include "b2_math.h"
 
@@ -224,5 +224,5 @@ inline bool b2Joint::GetCollideConnected() const
 {
 	return m_collideConnected;
 }
-
+#pragma warning(default : 26812)
 #endif

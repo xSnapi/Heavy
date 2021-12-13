@@ -21,7 +21,7 @@
 #include <cstring> // memcpy
 
 #include <vector>
-
+#pragma warning(disable : 26812)
 #ifdef ANDROID
 #ifdef USE_JNI
 
@@ -855,9 +855,12 @@ void SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height) {
              draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y, -1.0f,
              +1.0f);
 #else
+#pragma warning(disable : 26451)
     glOrtho(draw_data->DisplayPos.x, draw_data->DisplayPos.x + draw_data->DisplaySize.x,
             draw_data->DisplayPos.y + draw_data->DisplaySize.y, draw_data->DisplayPos.y, -1.0f,
             +1.0f);
+#pragma warning(default : 26451)
+
 #endif
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -1106,3 +1109,4 @@ void updateMouseCursor(sf::Window& window) {
 }
 
 } // end of anonymous namespace
+#pragma warning(default : 26812)

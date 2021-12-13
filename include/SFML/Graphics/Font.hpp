@@ -104,7 +104,7 @@ public:
     /// \see loadFromMemory, loadFromStream
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool loadFromFile(const std::string& filename);
+    bool loadFromFile(const std::string& filename);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the font from a file in memory

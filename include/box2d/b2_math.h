@@ -27,6 +27,7 @@
 
 #include "b2_api.h"
 #include "b2_settings.h"
+#pragma warning(disable : 26495)
 
 namespace sf {
 	template <typename T>
@@ -92,6 +93,11 @@ struct B2_API b2Vec2
 	void operator *= (float a)
 	{
 		x *= a; y *= a;
+	}
+
+	b2Vec2 operator * (const float a) const
+	{
+		return b2Vec2(x * a, y * a);
 	}
 
 	/// Get the length of this vector (the norm).
@@ -720,5 +726,6 @@ inline void b2Sweep::Normalize()
 	a0 -= d;
 	a -= d;
 }
+#pragma warning(default : 26495)
 
 #endif

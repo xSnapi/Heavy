@@ -27,7 +27,7 @@
 
 #include "b2_api.h"
 #include "b2_math.h"
-
+#pragma warning(disable : 26495)
 /// @file
 /// Structures and functions used for computing contact points, distance
 /// queries, and TOI queries.
@@ -279,5 +279,6 @@ inline bool b2TestOverlap(const b2AABB& a, const b2AABB& b)
 
 	return true;
 }
+#pragma warning(default : 26495)
 
 #endif

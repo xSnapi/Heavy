@@ -27,6 +27,9 @@
 #include "b2_math.h"
 #include "b2_collision.h"
 
+#pragma warning(disable : 26812)
+#pragma warning(disable : 26495)
+
 class b2BlockAllocator;
 
 /// This holds the mass data computed for a shape.
@@ -106,5 +109,7 @@ inline b2Shape::Type b2Shape::GetType() const
 {
 	return m_type;
 }
+#pragma warning(default : 26812)
+#pragma warning(default : 26495)
 
 #endif

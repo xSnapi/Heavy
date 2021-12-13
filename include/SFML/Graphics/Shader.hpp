@@ -137,7 +137,7 @@ public:
     /// \see loadFromMemory, loadFromStream
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool loadFromFile(const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename);
+    bool loadFromFile(const std::string& vertexShaderFilename, const std::string& fragmentShaderFilename);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the vertex, geometry and fragment shaders from files
@@ -200,7 +200,7 @@ public:
     /// \see loadFromFile, loadFromStream
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool loadFromMemory(const std::string& vertexShader, const std::string& fragmentShader);
+    bool loadFromMemory(const std::string& vertexShader, const std::string& fragmentShader);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the vertex, geometry and fragment shaders from source codes in memory

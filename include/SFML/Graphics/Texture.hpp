@@ -94,7 +94,7 @@ public:
     /// \return True if creation was successful
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool create(unsigned int width, unsigned int height);
+    bool create(unsigned int width, unsigned int height);
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the texture from a file on disk
@@ -125,7 +125,7 @@ public:
     /// \see loadFromMemory, loadFromStream, loadFromImage
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool loadFromFile(const std::string& filename, const IntRect& area = IntRect());
+    bool loadFromFile(const std::string& filename, const IntRect& area = IntRect());
 
     ////////////////////////////////////////////////////////////
     /// \brief Load the texture from a file in memory

@@ -139,7 +139,7 @@ public:
     /// \return True if operation was successful, false otherwise
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool setActive(bool active = true) override;
+    bool setActive(bool active = true) override;
 
 protected:
 

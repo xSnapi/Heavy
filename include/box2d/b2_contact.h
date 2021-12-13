@@ -29,6 +29,8 @@
 #include "b2_math.h"
 #include "b2_shape.h"
 
+#pragma warning(disable : 26495)
+
 class b2Body;
 class b2Contact;
 class b2Fixture;
@@ -382,5 +384,6 @@ inline float b2Contact::GetTangentSpeed() const
 {
 	return m_tangentSpeed;
 }
+#pragma warning(default : 26495)
 
 #endif

@@ -26,6 +26,8 @@
 #include "b2_api.h"
 #include "b2_math.h"
 
+#pragma warning(disable : 26495)
+
 /// Color for debug drawing. Each value has the range [0,1].
 struct B2_API b2Color
 {
@@ -98,5 +100,6 @@ public:
 protected:
 	uint32 m_drawFlags;
 };
+#pragma warning(default : 26495)
 
 #endif

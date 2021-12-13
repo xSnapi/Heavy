@@ -24,6 +24,7 @@ project "Heavy"
 
    includedirs {
       "core",
+      "include",
       "../include",
       "../include/Optick"
    }
@@ -62,6 +63,7 @@ project "Heavy"
          "vorbis.lib",
          "ogg.lib",
          "ws2_32.lib",
+         "legacy_stdio_definitions.lib",
          "sfml-graphics-s-d.lib",
          "sfml-window-s-d.lib",
          "sfml-system-s-d.lib",
@@ -92,6 +94,7 @@ project "Heavy"
          "vorbis.lib",
          "ogg.lib",
          "ws2_32.lib",
+         "legacy_stdio_definitions.lib",
          "sfml-graphics-s.lib",
          "sfml-window-s.lib",
          "sfml-system-s.lib",
