@@ -1,6 +1,8 @@
 #pragma once
 #include <Heavy.hpp>
 
+#include <SFML/Graphics.hpp>
+
 #include "Rigid Body.hpp"
 #include "Particle Emitter.hpp"
 
@@ -17,6 +19,16 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	hv::EdgeCollider collider;
+	sf::Clock m_clock;
+
+	std::vector<hv::RigidBody> m_Rbs;
+	hv::BoxCollider m_rigidBodyCollider;
+
+	std::vector<sf::RectangleShape> m_Boxes;
+
+	hv::RigidBody m_floor;
+	hv::BoxCollider m_floorCollider;
+	sf::RectangleShape m_floorShape;
+
 	hv::ParticleEmitter m_emitter;
 };

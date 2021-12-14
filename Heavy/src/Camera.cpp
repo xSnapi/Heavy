@@ -66,6 +66,7 @@ namespace hv {
 	void Camera::Resize(const sf::Vector2f& size) {
 		m_view.setSize(size);
 		m_view.setCenter(size / 2.0f);
+		Projection = Ortho(0.0f, size.x, size.y, 0.0f, -1.0f, 1.0f);
 	}
 
 	Camera Camera::s_instance;

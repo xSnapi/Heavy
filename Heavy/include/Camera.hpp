@@ -8,7 +8,11 @@
 #include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include <Heavy Math.hpp>
+
 namespace hv {
+	class HeavyShader;
+
 	class Camera {
 	public:
 		static Camera& Get();
@@ -51,5 +55,9 @@ namespace hv {
 		ShakeContext m_sc;
 
 		void Resize(const sf::Vector2f& size);
+
+		Mat4x4 Projection;
+
+		friend class HeavyShader;
 	};
 }

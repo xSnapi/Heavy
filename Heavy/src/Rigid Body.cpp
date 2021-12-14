@@ -3,6 +3,9 @@
 
 #include "Runtime.hpp"
 
+#include "Heavy Math.hpp"
+#include "..\include\Rigid Body.hpp"
+
 namespace hv {
 	RigidBody::RigidBody() {
 		b2BodyDef bodyDef;
@@ -60,8 +63,8 @@ namespace hv {
 	}
 
 	void RigidBody::SetCollider(const Collider& collider) {
-		if (m_collider)
-			m_body->DestroyFixture(m_fixture);
+		/*if (m_fixture)
+			m_body->DestroyFixture(m_fixture);*/
 
 		m_collider = const_cast<Collider*>(&collider);
 
@@ -107,6 +110,20 @@ namespace hv {
 
 	sf::Vector2f RigidBody::GetLinearVelocity() const {
 		return m_body->GetLinearVelocity();
+	}
+
+	float RigidBody::GetRotation() const {
+		return m_body->GetAngle() * (180.0f / HV_PI);
+	}
+
+	bool RigidBody::ContainsPoint(sf::Vector2f point) const {
+		point /= Constants::PPM;
+
+		for (b2Fixture* f = m_body->GetFixtureList(); f; f = f->GetNext())
+			if (f->TestPoint(point))
+				return true;
+
+		return false;
 	}
 
 	void RigidBody::CopyBody(const RigidBody& other) {

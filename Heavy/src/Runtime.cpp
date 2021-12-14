@@ -23,7 +23,9 @@ namespace hv {
 		EventDispatcher::Init(m_event, m_focus);
 		Input::Init(&m_window);
 
-		system("cls"); // <- cls makes colored output work
+		#if !DISABLE_CONSOLE
+			system("cls"); // <- cls makes colored output work
+		#endif
 	}
 
 	Runtime::~Runtime() {

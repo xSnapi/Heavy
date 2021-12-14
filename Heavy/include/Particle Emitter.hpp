@@ -54,6 +54,7 @@ namespace hv {
 
 		void SetTexture(sf::Texture& texture);
 
+		void SetHueShift(bool var);
 	private:
 		struct Particle {
 			float LifeTime		= 0.0f;
@@ -77,17 +78,21 @@ namespace hv {
 		std::vector<sf::Vertex> m_Vertices;
 		std::vector<Particle>   m_Particles;
 
-		float m_lifeTimeMin = 1.0f;
-		float m_lifeTimeMax = 3.0f;
+		float		 m_lifeTimeMin  = 1.0f;
+		float		 m_lifeTimeMax  = 3.0f;
+					 
+		float		 m_size			= 50.0f;
+		float		 m_spread		= 0.2f;
+		float		 m_torque		= 0.988f;
+		sf::Vector2f m_velocity		= sf::Vector2f(100.0f, 100.0f);
 
-		float m_size			= 50.0f;
-		float m_spread			= 0.2f;
-		float m_torque			= 0.988f;
-		sf::Vector2f m_velocity = sf::Vector2f(100.0f, 100.0f);
-
-		uint32_t m_max			= 99;
+		uint32_t	 m_max		= 99;
 
 		sf::Texture* m_texture  = nullptr;
+
+		// Color shift
+		sf::Clock m_shiftClock;
+		bool	  m_shift = false;
 
 		void AddQuad();
 		void DeleteQuad(size_t index);

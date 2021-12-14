@@ -11,7 +11,76 @@
 
 // Math in here dosen't seem heavy, but the engine is ¯\_(ツ)_/¯
 
+constexpr float HV_PI = 3.141592f;
+
 namespace hv {
+
+	template<typename T, uint32_t S>
+	struct Column
+	{
+		T& operator[](uint32_t i) {
+			return m_value[i];
+		}
+
+	private:
+		T m_value[S] = { 0.0f };
+	};
+
+	template<uint32_t S, uint32_t W>
+	struct Mat
+	{
+		Column<float, S>& operator[](uint32_t i) {
+			return m_col[i];
+		}
+
+	protected:
+		Column<float, W> m_col[S];
+	};
+
+	struct Mat4x4 : public Mat<4, 4> {
+
+	};
+
+	struct Mat3x3 : public Mat<3, 3> {
+		sf::Vector3f operator * (sf::Vector3f vec) {
+			return sf::Vector3f
+			(
+				m_col[0][0] * vec.x + m_col[1][0] * vec.y + m_col[2][0] * vec.z,
+				m_col[0][1] * vec.x + m_col[1][1] * vec.y + m_col[2][1] * vec.z,
+				m_col[0][2] * vec.x + m_col[1][2] * vec.y + m_col[2][2] * vec.z
+			);
+		}
+	};
+
+	struct Mat2x2 : public Mat<2, 2> {
+		sf::Vector2f operator * (sf::Vector2f vec) {
+			return sf::Vector2f
+			(
+				m_col[0][0] * vec.x + m_col[1][0] * vec.y,
+				m_col[0][1] * vec.x + m_col[1][1] * vec.y
+			);
+		}
+	};
+
+
+
+	static Mat4x4 Ortho(float left, float right, float bottom, float top, float zNear, float zFar) {
+		Mat4x4 proj;
+
+		proj[0][0] =  2.0f / (right - left);
+		proj[1][1] =  2.0f / (top - bottom);
+		proj[2][2] = -2.0f / (zFar - zNear);
+		// x idzie pierwszy potem y
+
+		proj[3][0] = -(right + left) / (right - left);
+		proj[3][1] = -(top + bottom) / (top - bottom);
+		proj[3][2] = -(zFar + zNear) / (zFar - zNear);
+
+		proj[3][3] = 1.0f;
+
+		return proj;
+	}
+
 	inline float Lerp(const float& x, const float& y, const float& t) { // Linear interpolation
 		return x * (1.0f - t) + y * t;
 	}
@@ -46,5 +115,22 @@ namespace hv {
 
 	inline float CrossProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
 		return v0.x * v1.y - v0.y * v1.x;
+	}
+
+	inline float DotProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
+		return v0.x * v1.x + v0.y * v1.y;
+	}
+
+	static sf::Vector3f CrossProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
+		return sf::Vector3f
+		(
+			v0.y * v1.z - v0.z * v1.y,
+			v0.z * v1.x - v0.x * v1.z,
+			v0.x * v1.y - v0.y * v1.x
+		);
+	}
+
+	static float DotProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
+		return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
 	}
 }

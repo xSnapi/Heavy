@@ -38,13 +38,21 @@ namespace hv {
 
 			float life = p.LifeRemaining / p.LifeTime;
 
-			sf::Vector3f color = Lerp(m_deathColor, m_birthColor, life);
-
-			SetQuadColor(qIndex, Vec3ToColor(color, char(life * 255)));
-
 			TransformQuad(qIndex, life);
 
 			p.Velocity = Lerp(p.Velocity * m_torque, p.Velocity, life);
+
+			if (!m_shift) {
+				sf::Vector3f color = Lerp(m_deathColor, m_birthColor, life);
+
+				SetQuadColor(qIndex, Vec3ToColor(color, char(life * 255)));
+				continue;
+			}
+
+			sf::Color color = HueShift(sf::Color(255, 0, 0), m_shiftClock.getElapsedTime().asSeconds());
+			color.a = life * (sf::Uint8)255;
+
+			SetQuadColor(qIndex, color);
 		}
 	}
 
@@ -105,6 +113,10 @@ namespace hv {
 
 	void ParticleEmitter::SetTexture(sf::Texture& texture) {
 		m_texture = &texture;
+	}
+
+	void ParticleEmitter::SetHueShift(bool var) {
+		m_shift = var;
 	}
 
 	void ParticleEmitter::AddQuad() {
@@ -177,7 +189,7 @@ namespace hv {
 	}
 
 	void ParticleEmitter::InitParticle(Particle& p) {
-		HV_ASSERT(m_lifeTimeMin < m_lifeTimeMax);
+		HV_DEBUG_ASSERT(m_lifeTimeMin < m_lifeTimeMax);
 
 		// Initializes particle
 		p.LifeTime = Random::Get().Float(m_lifeTimeMin, m_lifeTimeMax);

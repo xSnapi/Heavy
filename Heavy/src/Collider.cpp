@@ -28,6 +28,8 @@ namespace hv {
 namespace hv {
 	BoxCollider::BoxCollider() {
 		i_fixtureDef.shape = &m_shape;
+
+		//m_shape.m_radius = 0.005f;
 	}
 
 	BoxCollider::BoxCollider(sf::Vector2f size) {

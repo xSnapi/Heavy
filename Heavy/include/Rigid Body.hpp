@@ -32,6 +32,9 @@ namespace hv {
 		// Accessors
 		sf::Vector2f GetPosition() const;
 		sf::Vector2f GetLinearVelocity() const;
+		float		 GetRotation() const; // Returns rotation in degree
+
+		bool ContainsPoint(sf::Vector2f point) const;
 
 	private:
 		b2Body*		m_body		= nullptr;
