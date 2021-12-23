@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Rigid Body.hpp"
+#include "Light.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -18,9 +18,9 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	hv::BoxCollider floorC;
-	hv::RigidBody floor;
+	hv::SpotLight m_light;
 
-	std::vector<hv::RigidBody> rbs;
-	hv::BoxCollider rbC;
+	hv::SpotLight m_light1;
+
+	hv::SpotLight m_light2;
 };

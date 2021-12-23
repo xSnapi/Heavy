@@ -84,7 +84,7 @@ public:
     /// \return True if creation has been successful
     ///
     ////////////////////////////////////////////////////////////
-    [[nodiscard]] bool create(unsigned int width, unsigned int height, const ContextSettings& settings = ContextSettings());
+    bool create(unsigned int width, unsigned int height, const ContextSettings& settings = ContextSettings());
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the maximum anti-aliasing level supported by the system

@@ -4,16 +4,19 @@
 
 #include "Heavy Utilities.hpp"
 #include "Heavy ImGui.hpp"
+#include "Light World.hpp"
 
 Application::Application() {
 	InitWindow();
 	InitAssets();
 
-	floorC.SetSize(sf::Vector2f(400.0f, 400.0f));
-	rbC.SetSize(sf::Vector2f(50.0f, 50.0f));
+	m_light.SetPosition(sf::Vector2f(400.0f, 400.0f));
+	m_light.SetRadius(200.0f);
 
-	floor.SetCollider(floorC);
-	floor.SetPosition(sf::Vector2f(400.0f, 400.0f));
+	m_light1.SetRadius(100.0f);
+
+	m_light2.SetPosition(sf::Vector2f(700.0f, 650.f));
+	m_light2.SetRadius(150.0f);
 }
 
 Application::~Application() {
@@ -24,13 +27,24 @@ void Application::FixedUpdate() {
 
 }
 
+static bool x = true;
 void Application::Update() {
-	if (hv::Input::Mouse::KeyCheck(sf::Mouse::Left))
-		rbs.emplace_back(hv::Input::Mouse::GetRelativePosition(), hv::BodyType::Dynamic, rbC);
+	if (hv::Input::Keyboard::KeyCheck(sf::Keyboard::Space))
+		x = !x;
+
+	hv::LightWorld::Get().Enabled = x;
+
+	static float level = 0.0f;
+
+	ImGui::Begin("light");
+	ImGui::DragFloat("Level", &level, 0.005f, 0.0f, 1.0f);
+	ImGui::End();
+
+	hv::LightWorld::Get().SetLightLevel(level);
 }
 
 void Application::Render() {
-	
+	m_renderer.draw(sf::Sprite(hv::TextureLibrary::Get().Res("background")));
 }
 
 void Application::InitAssets() {

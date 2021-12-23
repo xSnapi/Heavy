@@ -21,6 +21,7 @@
 
 #include "Times.hpp"
 #include "Asset Loader.hpp"
+#include "Heavy Renderer.hpp"
 
 #define USE_MULTITHREAD 1
 
@@ -42,6 +43,8 @@ namespace hv {
 
 		sf::Color m_clearColor;
 
+		Renderer  m_renderer;
+
 		double m_physicsStep = 0.01;
 		double m_pet		 = 0.0; // physics elapsed time
 
@@ -60,9 +63,9 @@ namespace hv {
 		#endif
 
 		#if USE_MULTITHREAD
-			std::mutex m_mutex;
+			std::mutex	 m_mutex;
 			std::thread* m_rendererThread = nullptr;
-			bool m_isRunning = true;
+			bool		 m_isRunning	  = true;
 		#endif
 		
 		void HandleEvents();

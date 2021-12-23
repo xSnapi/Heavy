@@ -8,6 +8,7 @@
 #include "Heavy ImGui.hpp"
 #include "Asset Manager.hpp"
 #include "Physics World.hpp"
+#include "Light World.hpp"
 
 namespace hv {
 	Runtime::Runtime() 
@@ -49,8 +50,12 @@ namespace hv {
 		HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
 
 		// Singletons initialization
-		Camera::Get().Init(&m_window);
+		Camera		::Get().Init(&m_window);
+		LightWorld	::Get().Init(m_window.getSize());
 		PhysicsWorld::Get().InitDebugDraw(m_window);
+
+		// Renderer initialization
+		m_renderer.Resize(m_window.getSize());
 
 		#if ENABLE_IMGUI
 			ImGui::SFML::Init(m_window);
@@ -116,7 +121,7 @@ namespace hv {
 				Render();
 				
 				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld.DebugDraw();
+					PhysicsWorld::Get().m_world.DebugDraw();
 				#endif
 				#if ENABLE_IMGUI
 					ImGui::SFML::Render(m_window);
@@ -161,6 +166,11 @@ namespace hv {
 			case sf::Event::GainedFocus:
 				m_focus = true;
 				break;
+
+			case sf::Event::Resized:
+				m_renderer.Resize(m_window.getSize());
+				LightWorld::Get().Resize(m_window.getSize());
+				break;
 			}
 		}
 	}
@@ -172,15 +182,29 @@ namespace hv {
 
 			m_window.setActive(true);
 
+			static sf::Sprite frameSprite;
+
 			while (m_isRunning) {
-				m_window.clear(m_clearColor);
+				m_renderer.clear(m_clearColor);
 
 				m_mutex.lock();
 				Render();
 				
+				m_renderer.display();
+
+				if (!LightWorld::Get().Enabled) {
+					frameSprite.setTexture(m_renderer.GetFrame());
+
+					m_window.draw(frameSprite);
+				}
+				else {
+					LightWorld::Get().RenderLights(m_window, m_renderer.GetFrame());
+				}
+
 				#if ENABLE_COLLIDER_DRAW
 					PhysicsWorld::Get().m_world.DebugDraw();
 				#endif
+
 				#if ENABLE_IMGUI
 					if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
 						ImGui::SFML::Render(m_window);
@@ -190,7 +214,7 @@ namespace hv {
 				m_window.display();
 			}
 			
-			Debug::Log(Color::Green, "Renderer Exited successfully\n");
+			Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
 		});
 	}
 #endif
