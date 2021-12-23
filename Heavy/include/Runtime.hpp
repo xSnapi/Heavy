@@ -36,7 +36,6 @@ namespace hv {
 
 		void Run();
 
-		static b2World PhysicsWorld;
 	protected:
 		sf::RenderWindow m_window;
 		sf::Event m_event;
@@ -66,7 +65,6 @@ namespace hv {
 			bool m_isRunning = true;
 		#endif
 		
-		void InitPhysicsWorld();
 		void HandleEvents();
 		void InitRenderer();
 		void Delay();

@@ -10,8 +10,6 @@ namespace hv {
 	void Camera::Init(sf::RenderWindow* window) {
 		m_window = window;
 
-		HV_ASSERT(m_window);
-
 		Resize((sf::Vector2f)m_window->getSize());
 	}
 

@@ -8,6 +8,12 @@
 Application::Application() {
 	InitWindow();
 	InitAssets();
+
+	floorC.SetSize(sf::Vector2f(400.0f, 400.0f));
+	rbC.SetSize(sf::Vector2f(50.0f, 50.0f));
+
+	floor.SetCollider(floorC);
+	floor.SetPosition(sf::Vector2f(400.0f, 400.0f));
 }
 
 Application::~Application() {
@@ -18,24 +24,13 @@ void Application::FixedUpdate() {
 
 }
 
-static float pos[2] = { 400.0f, 400.0f };
-static float radius = 100.0f;
 void Application::Update() {
-	ImGui::Begin("light");
-	ImGui::DragFloat("radius", &radius, 1.0f, 0.0f, 800.0f);
-	ImGui::DragFloat2("pos", pos, 1.0f, 0.0f, 800.0f);
-	ImGui::End();
-	
-	m_light.SetPosition(sf::Vector2f(pos[0], pos[1]));
-	m_light.SetRadius(radius);
+	if (hv::Input::Mouse::KeyCheck(sf::Mouse::Left))
+		rbs.emplace_back(hv::Input::Mouse::GetRelativePosition(), hv::BodyType::Dynamic, rbC);
 }
 
 void Application::Render() {
-	sf::Sprite s(hv::TextureLibrary::Get().Res("background"));
-	s.setColor(sf::Color(100, 100, 100));
-	m_window.draw(s);
-
-	m_window.draw(m_light);
+	
 }
 
 void Application::InitAssets() {

@@ -1,16 +1,14 @@
 #include <hvpch.h>
 #include "Rigid Body.hpp"
 
-#include "Runtime.hpp"
-
 #include "Heavy Math.hpp"
-#include "..\include\Rigid Body.hpp"
+#include "Physics World.hpp"
 
 namespace hv {
 	RigidBody::RigidBody() {
 		b2BodyDef bodyDef;
 		
-		m_body = Runtime::PhysicsWorld.CreateBody(&bodyDef);
+		m_body = PhysicsWorld::Get().m_world.CreateBody(&bodyDef);
 	}
 
 	RigidBody::RigidBody(const RigidBody& other) {
@@ -29,7 +27,7 @@ namespace hv {
 		bodyDef.position = pos;
 		bodyDef.type = (b2BodyType)type;
 
-		m_body = Runtime::PhysicsWorld.CreateBody(&bodyDef);
+		m_body = PhysicsWorld::Get().m_world.CreateBody(&bodyDef);
 	}
 
 	RigidBody::RigidBody(sf::Vector2f pos, BodyType type, const Collider& collider) {
@@ -39,18 +37,18 @@ namespace hv {
 		bodyDef.position = pos;
 		bodyDef.type = (b2BodyType)type;
 		
-		m_body = Runtime::PhysicsWorld.CreateBody(&bodyDef);
+		m_body = PhysicsWorld::Get().m_world.CreateBody(&bodyDef);
 
 		SetCollider(collider);
 	}
 
 	RigidBody::~RigidBody() {
-		Runtime::PhysicsWorld.DestroyBody(m_body);
+		PhysicsWorld::Get().m_world.DestroyBody(m_body);
 	}
 
 	RigidBody* RigidBody::operator=(const RigidBody& other) {
 		if (m_body)
-			Runtime::PhysicsWorld.DestroyBody(m_body);
+			PhysicsWorld::Get().m_world.DestroyBody(m_body);
 
 		m_fixture = other.m_fixture;
 
@@ -145,7 +143,7 @@ namespace hv {
 		bodyDef.linearDamping	= body->GetLinearDamping();
 		bodyDef.linearVelocity	= body->GetLinearVelocity();
 
-		m_body = Runtime::PhysicsWorld.CreateBody(&bodyDef);
+		m_body = PhysicsWorld::Get().m_world.CreateBody(&bodyDef);
 	}
 
 }

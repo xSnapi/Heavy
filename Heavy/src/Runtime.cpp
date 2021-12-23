@@ -5,21 +5,14 @@
 #include "Heavy Debug.hpp"
 #include "Input.hpp"
 #include "Camera.hpp"
-
 #include "Heavy ImGui.hpp"
-
-#include "b2_draw.hpp"
-#include "Collider.hpp"
 #include "Asset Manager.hpp"
+#include "Physics World.hpp"
 
 namespace hv {
-	b2World Runtime::PhysicsWorld(sf::Vector2f(0.0f, 10.0f));
-
 	Runtime::Runtime() 
 		: m_event()
 	{
-		InitPhysicsWorld();
-
 		EventDispatcher::Init(m_event, m_focus);
 		Input::Init(&m_window);
 
@@ -57,6 +50,7 @@ namespace hv {
 
 		// Singletons initialization
 		Camera::Get().Init(&m_window);
+		PhysicsWorld::Get().InitDebugDraw(m_window);
 
 		#if ENABLE_IMGUI
 			ImGui::SFML::Init(m_window);
@@ -81,12 +75,12 @@ namespace hv {
 					
 					FixedUpdate();
 					
-					PhysicsWorld.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
 
 					m_mutex.unlock();
 				#else
 					FixedUpdate();
-					PhysicsWorld.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
 				#endif
 
 				m_pet -= m_physicsStep;
@@ -141,25 +135,6 @@ namespace hv {
 		}
 	}
 
-	static ContactListener Listener;
-	void Runtime::InitPhysicsWorld()  {
-		#if ENABLE_COLLIDER_DRAW
-			// This memory leak is here on purpose
-			// we don't have to make draw static or member variable
-			// leaving it in memory will work just fine + we don't need access to it (for now)
-			// TODO: CHANGE
-			b2DebugDraw* draw = new b2DebugDraw(m_window);
-			PhysicsWorld.SetDebugDraw(draw);
-
-			uint32_t flags = 0;
-			flags += b2Draw::e_shapeBit;
-
-			draw->SetFlags(flags);
-		#endif
-			PhysicsWorld.SetContinuousPhysics(true);
-		PhysicsWorld.SetContactListener(&Listener);
-	}
-
 	void Runtime::HandleEvents() {
 		while (m_window.pollEvent(m_event)) {
 
@@ -204,7 +179,7 @@ namespace hv {
 				Render();
 				
 				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld.DebugDraw();
+					PhysicsWorld::Get().m_world.DebugDraw();
 				#endif
 				#if ENABLE_IMGUI
 					if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)

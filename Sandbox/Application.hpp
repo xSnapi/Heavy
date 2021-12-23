@@ -4,9 +4,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "Rigid Body.hpp"
-#include "Particle Emitter.hpp"
-
-#include "Point Light.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -21,5 +18,9 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	hv::PointLight m_light;
+	hv::BoxCollider floorC;
+	hv::RigidBody floor;
+
+	std::vector<hv::RigidBody> rbs;
+	hv::BoxCollider rbC;
 };

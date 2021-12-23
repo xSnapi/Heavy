@@ -1,5 +1,5 @@
 #include <hvpch.h>
-#include "Point Light.hpp"
+#include "Glow Effect.hpp"
 
 #include "Heavy Utilities.hpp"
 
