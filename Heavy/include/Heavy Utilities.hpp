@@ -24,6 +24,10 @@ namespace hv {
 		return sf::Vector3f((float)c.r / 255.0f, (float)c.g / 255.0f, (float)c.b / 255.0f);
 	}
 
+	inline sf::Glsl::Vec4 ColorToNormalizedVec4(const sf::Color& c) {
+		return sf::Glsl::Vec4((float)c.r / 255.0f, (float)c.g / 255.0f, (float)c.b / 255.0f, (float)c.a / 255.0f);
+	}
+
 	inline sf::Color NormalizedVec3ToColor(const sf::Vector3f& v) { // Note alpha is striped here
 		float r = v.x >= 0.0f ? v.x > 1.0f ? 1.0f : v.x * 255.0f : 0.0f;
 		float g = v.y >= 0.0f ? v.y > 1.0f ? 1.0f : v.y * 255.0f : 0.0f;

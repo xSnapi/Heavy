@@ -156,7 +156,7 @@ namespace hv {
 
 			draw->SetFlags(flags);
 		#endif
-
+			PhysicsWorld.SetContinuousPhysics(true);
 		PhysicsWorld.SetContactListener(&Listener);
 	}
 

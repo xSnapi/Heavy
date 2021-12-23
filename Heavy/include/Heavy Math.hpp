@@ -117,10 +117,6 @@ namespace hv {
 		return v0.x * v1.y - v0.y * v1.x;
 	}
 
-	inline float DotProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
-		return v0.x * v1.x + v0.y * v1.y;
-	}
-
 	static sf::Vector3f CrossProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
 		return sf::Vector3f
 		(
@@ -130,7 +126,12 @@ namespace hv {
 		);
 	}
 
-	static float DotProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
+
+	inline float DotProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
+		return v0.x * v1.x + v0.y * v1.y;
+	}
+
+	inline float DotProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
 		return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
 	}
 }
