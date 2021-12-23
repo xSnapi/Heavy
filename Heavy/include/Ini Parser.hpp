@@ -39,14 +39,14 @@ namespace hv {
 		std::unordered_map<std::string, std::unordered_map<std::string, std::string>> m_Sections;
 
 		// Because of unordered_map behavior we keep order of sections in list
-		std::list<std::string> m_SectionOrder;
+		std::list<std::string>									m_SectionOrder;
 		std::unordered_map<std::string, std::list<std::string>> m_ParametrOrder;
 
 		std::fstream m_file;
 		std::string  m_path;
 		bool		 m_open = false;
 
-		// Warning handling for given section and parametr
+		// Warning handling for given section and parametr I know setting parametr can be made through this but I would have to do warnings other way
 		const std::string* GetParametr(const std::string& section, const std::string& parametr) const;
 
 		void SetParametr(const std::string& section, const std::string& parametr, const std::string& parsedParametr);
