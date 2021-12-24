@@ -25,6 +25,11 @@ namespace hv {
 		void SetAttenuation(float attenuation);
 		void SetPower(float power);
 
+		sf::Vector2f GetPosition() const;
+		float GetRadius() const;
+		float GetAttenuation() const;
+		float GetPower() const;
+
 	private:
 		Light* m_light = nullptr;
 

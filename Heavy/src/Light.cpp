@@ -55,6 +55,22 @@ namespace hv {
 		m_light->LightPower = power;
 	}
 
+	sf::Vector2f SpotLight::GetPosition() const {
+		return m_light->Position;
+	}
+
+	float SpotLight::GetRadius() const {
+		return m_light->Radius;
+	}
+
+	float SpotLight::GetAttenuation() const {
+		return m_light->Attenuation;
+	}
+
+	float SpotLight::GetPower() const {
+		return m_light->LightPower;
+	}
+
 	void SpotLight::CopyLight(const SpotLight& other) {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 

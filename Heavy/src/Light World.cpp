@@ -75,7 +75,7 @@ namespace hv {
 		return m_enabled;
 	}
 
-	void LightWorld::RenderLights(Renderer& renderer, const sf::Sprite& frame) {
+	void LightWorld::RenderLights(Renderer& renderer) {
 		m_lightMask->clear();
 		m_maskBuffer->clear(sf::Color::White);
 
@@ -100,8 +100,7 @@ namespace hv {
 
 		m_maskShader->setUniform("u_light", m_maskBuffer->getTexture());
 
-		//renderer.draw(m_maskSprite);
-		renderer.draw(frame, m_maskShader);
+		renderer.draw(renderer.GetFrame(), m_maskShader);
 	}
 
 	void LightWorld::DestroyLight(Light* light) {
@@ -157,52 +156,52 @@ namespace hv {
 )";
 
 	const std::string LightWorld::ShaderSource::SpotVertex   = R"(
-varying vec2 i_tex;
-
-void main()
-{
-	i_tex		= gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-}
+		varying vec2 i_tex;
+		
+		void main()
+		{
+			i_tex		= gl_TextureMatrix[0] * gl_MultiTexCoord0;
+			gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+		}
 )";
 
 	const std::string LightWorld::ShaderSource::SpotFragment = R"(
-#version 330
-
-precision mediump float;
-
-layout(location = 0) out vec4 o_color;
-
-in vec2 i_tex;
-	
-uniform sampler2D texture;
-
-uniform vec2  u_resolution;
-uniform vec2  u_position;
-uniform vec3  u_color;
-uniform float u_radius;
-uniform float u_attenuation;
-uniform float u_lightPower;
-
-vec3 Circle(vec2 position, vec3 color, float radius) {
-	float circleShape = length(position);
-	float circle = smoothstep(radius, radius + u_attenuation, 1.0 - circleShape);
-	return color * circle;
-}
-
-void main() {
-	vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-	float aspect = u_resolution.x / u_resolution.y;
-	uv.x *= aspect;
-	uv.y = 1.0 - uv.y;
-
-	vec2  pos = u_position / u_resolution;
-	float rad = u_radius   / u_resolution.x;
-	rad = 1.0 - rad;		
-	
-	vec4 pixel = texture2D(texture, i_tex);
-	o_color = pixel * vec4(1.0 - Circle(uv - pos, u_color, rad) * u_lightPower, 1.0);
-}
+		#version 330
+		
+		precision mediump float;
+		
+		layout(location = 0) out vec4 o_color;
+		
+		in vec2 i_tex;
+			
+		uniform sampler2D texture;
+		
+		uniform vec2  u_resolution;
+		uniform vec2  u_position;
+		uniform vec3  u_color;
+		uniform float u_radius;
+		uniform float u_attenuation;
+		uniform float u_lightPower;
+		
+		vec3 Circle(vec2 position, vec3 color, float radius) {
+			float circleShape = length(position);
+			float circle = smoothstep(radius, radius + u_attenuation, 1.0 - circleShape);
+			return color * circle;
+		}
+		
+		void main() {
+			vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+			float aspect = u_resolution.x / u_resolution.y;
+			uv.x *= aspect;
+			uv.y = 1.0 - uv.y;
+		
+			vec2  pos = u_position / u_resolution;
+			float rad = u_radius   / u_resolution.x;
+			rad = 1.0 - rad;		
+			
+			vec4 pixel = texture2D(texture, i_tex);
+			o_color = pixel * vec4(1.0 - Circle(uv - pos, u_color, rad) * u_lightPower, 1.0);
+		}
 )";
 
 }

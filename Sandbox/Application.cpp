@@ -27,8 +27,14 @@ void Application::FixedUpdate() {
 void Application::Update() {
 	sf::Vector2f pos = hv::Input::Mouse::GetRelativePosition();
 
-	if (hv::EventDispatcher::Get() == sf::Event::MouseWheelScrolled)
-		HV_LOG("sus\n");
+	if (hv::EventDispatcher::CheckFor(sf::Event::MouseWheelScrolled)) {
+		int delta = hv::EventDispatcher::GetEvent(sf::Event::MouseWheelScrolled).mouseWheelScroll.delta;
+
+		if (delta != 0) {
+			for (auto& l : m_Lights)
+				l.SetAttenuation(l.GetAttenuation() + 0.05f * delta);
+		}
+	}
 
 	if (hv::Input::Mouse::KeyCheck(sf::Mouse::Left))
 		m_Lights.emplace_back(pos, 200.0f);

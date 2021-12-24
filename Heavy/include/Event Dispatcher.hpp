@@ -5,18 +5,24 @@
 	Class giving access to last event
 */
 
+#include <unordered_set>
+#include <unordered_map>
+
 #include <SFML/Window/Event.hpp>
 
 namespace hv {
 	class EventDispatcher {
 	public:
-		static void Init(sf::Event& event, bool& focus);
+		static void Init(bool& focus);
 
-		// Returns const reference to event in Runtime.hpp
-		// if window dosen't have focus returns 0
-		static const sf::Event::EventType& Get();
+		static void DispatchEvent(const sf::Event& event);
+
+		static sf::Event GetEvent(sf::Event::EventType type);
+		static bool CheckFor(sf::Event::EventType event);
+		static void Clear();
+
 	private:
-		static sf::Event* s_event;
 		static bool* s_focus;
+		static std::unordered_map<sf::Event::EventType, sf::Event> s_events;
 	};
 }

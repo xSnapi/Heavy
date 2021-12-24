@@ -15,7 +15,12 @@ namespace hv {
 		m_frame::clear();
 	}
 
-	const sf::Texture& Renderer::GetFrame() const {
-		return m_frame::getTexture();
+	void Renderer::clear() {
+		m_frame::clear(ClearColor);
+	}
+
+	const sf::Sprite& Renderer::GetFrame() {
+		m_frameSprite.setTexture(m_frame::getTexture());
+		return m_frameSprite;
 	}
 }

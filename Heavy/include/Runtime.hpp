@@ -41,8 +41,6 @@ namespace hv {
 		sf::RenderWindow m_window;
 		sf::Event m_event;
 
-		sf::Color m_clearColor;
-
 		Renderer  m_renderer;
 
 		double m_physicsStep = 0.01;
@@ -67,7 +65,10 @@ namespace hv {
 			std::thread* m_rendererThread = nullptr;
 			bool		 m_isRunning	  = true;
 		#endif
-		
+
+		void FrameFixedUpdate();
+		void FrameUpdate();
+		void RendererDraw();
 		void HandleEvents();
 		void InitRenderer();
 		void Delay();

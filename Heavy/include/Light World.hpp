@@ -53,7 +53,7 @@ namespace hv {
 		float GetLightLevel() const;
 		bool LightEnabled() const;
 
-		void RenderLights(Renderer& renderer, const sf::Sprite& frame);
+		void RenderLights(Renderer& renderer);
 	private:
 		LightWorld();
 		~LightWorld();

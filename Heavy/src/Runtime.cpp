@@ -14,8 +14,8 @@ namespace hv {
 	Runtime::Runtime() 
 		: m_event()
 	{
-		EventDispatcher::Init(m_event, m_focus);
-		Input::Init(&m_window);
+		EventDispatcher::Init(m_focus);
+		Input::Init(m_window);
 
 		#if !DISABLE_CONSOLE
 			system("cls"); // <- cls makes colored output work
@@ -40,11 +40,6 @@ namespace hv {
 	}
 
 	void Runtime::Run() {
-
-		// Physics step settings
-		constexpr uint32_t velocityCorrection = 12;
-		constexpr uint32_t positionCorrection = 8;
-
 		GLInit();
 
 		HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
@@ -78,61 +73,36 @@ namespace hv {
 				#if USE_MULTITHREAD
 					m_mutex.lock();
 					
-					FixedUpdate();
-					
-					PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					FrameFixedUpdate();
 
 					m_mutex.unlock();
 				#else
-					FixedUpdate();
-					PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					FrameFixedUpdate();
 				#endif
 
 				m_pet -= m_physicsStep;
 			}
 
+			m_focus = m_window.hasFocus();
 			HandleEvents();
 
 			#if USE_MULTITHREAD
 				m_mutex.lock();
 
-				#if ENABLE_IMGUI
-					ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-					m_updated = true;
-				#endif
-
-				Update();
-				
-				Camera::Get().Update();
-
-				if(LightWorld::Get().LightEnabled())
-					LightWorld::Get().Update();
+				FrameUpdate();
 
 				m_mutex.unlock();
 
 				Delay();
 			#else
-				#if ENABLE_IMGUI
-					ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-				#endif
+				FrameUpdate();
 
-				Update();
-
-				Camera::Get().Update();
-
-				m_window.clear();
-				Render();
-				
-				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld::Get().m_world.DebugDraw();
-				#endif
-				#if ENABLE_IMGUI
-					ImGui::SFML::Render(m_window);
-				#endif
+				RendererDraw();
 
 				m_window.display();
-
 			#endif
+
+			EventDispatcher::Clear();
 
 			if(m_focus)
 				Input::Update();
@@ -143,12 +113,65 @@ namespace hv {
 		}
 	}
 
+	void Runtime::FrameFixedUpdate() {
+		// Physics step settings
+		constexpr uint32_t velocityCorrection = 12;
+		constexpr uint32_t positionCorrection = 8;
+
+		FixedUpdate();
+
+		PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+	}
+
+	void Runtime::FrameUpdate() {
+		#if ENABLE_IMGUI
+			ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
+			m_updated = true;
+		#endif
+
+		Update();
+
+		Camera::Get().Update();
+
+		if (LightWorld::Get().LightEnabled())
+			LightWorld::Get().Update();
+	}
+
+	void Runtime::RendererDraw() {
+		m_renderer.clear();
+
+		Render();
+
+		m_renderer.display();
+
+		// Drawing Heavy components
+		if (!LightWorld::Get().LightEnabled()) {
+			m_window.draw(m_renderer.GetFrame());
+		}
+		else {
+			LightWorld::Get().RenderLights(m_renderer);
+
+			m_window.draw(m_renderer.GetFrame());
+		}
+
+		#if ENABLE_COLLIDER_DRAW
+			PhysicsWorld::Get().m_world.DebugDraw();
+		#endif
+		
+		#if ENABLE_IMGUI
+			if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
+				ImGui::SFML::Render(m_window);
+		#endif
+	}
+
 	void Runtime::HandleEvents() {
-		if (m_window.pollEvent(m_event)) {
+		while (m_window.pollEvent(m_event)) {
 
 			#if ENABLE_IMGUI
 				ImGui::SFML::ProcessEvent(m_event);
 			#endif
+
+			EventDispatcher::DispatchEvent(m_event);
 
 			switch (m_event.type) {
 			case sf::Event::Closed:
@@ -162,12 +185,7 @@ namespace hv {
 				break;
 
 			case sf::Event::LostFocus:
-				m_focus = false;
 				Input::BlockInput();
-				break;
-
-			case sf::Event::GainedFocus:
-				m_focus = true;
 				break;
 
 			case sf::Event::Resized:
@@ -185,39 +203,11 @@ namespace hv {
 
 			m_window.setActive(true);
 
-			static sf::Sprite frameSprite;
-
 			while (m_isRunning) {
-				m_renderer.clear(m_clearColor);
-
 				m_mutex.lock();
-				Render();
-				
-				m_renderer.display();
 
-				if (!LightWorld::Get().LightEnabled()) {
-					frameSprite.setTexture(m_renderer.GetFrame());
+				RendererDraw();
 
-					m_window.draw(frameSprite);
-				}
-				else {
-					frameSprite.setTexture(m_renderer.GetFrame());
-
-					LightWorld::Get().RenderLights(m_renderer, frameSprite);
-
-					frameSprite.setTexture(m_renderer.GetFrame());
-
-					m_window.draw(frameSprite);
-				}
-
-				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld::Get().m_world.DebugDraw();
-				#endif
-
-				#if ENABLE_IMGUI
-					if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
-						ImGui::SFML::Render(m_window);
-				#endif
 				m_mutex.unlock();
 
 				m_window.display();
