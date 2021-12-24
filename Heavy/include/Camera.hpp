@@ -11,8 +11,6 @@
 #include <Heavy Math.hpp>
 
 namespace hv {
-	class HeavyShader;
-
 	class Camera {
 	public:
 		static Camera& Get();
@@ -28,6 +26,7 @@ namespace hv {
 
 		// Accessors
 		sf::Vector2f GetCenter() const;
+		sf::Vector2f GetSize() const;
 
 	private:
 		Camera();
@@ -57,7 +56,5 @@ namespace hv {
 		void Resize(const sf::Vector2f& size);
 
 		Mat4x4 Projection;
-
-		friend class HeavyShader;
 	};
 }

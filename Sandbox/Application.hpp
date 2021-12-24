@@ -18,9 +18,5 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	hv::SpotLight m_light;
-
-	hv::SpotLight m_light1;
-
-	hv::SpotLight m_light2;
+	std::vector<hv::SpotLight> m_Lights;
 };

@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Vertex.hpp>
 
 #include "Heavy Renderer.hpp"
 
@@ -13,8 +14,14 @@ namespace hv {
 	struct Light
 	{
 		sf::Vector2f Position;
-		float		 Radius = 0.0f;
+
+		float		 Radius		 = 0.0f;
+		float		 Attenuation = 0.15f;
+
+		float		 LightPower  = 1.0f;
+
 		LightType	 Type;
+		sf::Color	 Color = sf::Color::White;
 
 		Light(LightType type) :
 			Type(type)
@@ -25,53 +32,62 @@ namespace hv {
 }
 
 namespace hv {
-	class  Runtime;
 	struct PointLight;
 	struct SpotLight;
+}
 
+namespace hv {
 	class LightWorld {
 	public:
+		void Init(sf::Vector2u size);
+
+		void Update();
+
 		static LightWorld& Get();
 
-		bool  Enabled	 = false;
+		void Resize(sf::Vector2u size);
 
 		void SetLightLevel(float level);
-		float GetLightLevel() const;
+		void SetLightEnabled(bool enabled);
 
-		void RenderLights(sf::RenderWindow& window, const sf::Texture& frame);
+		float GetLightLevel() const;
+		bool LightEnabled() const;
+
+		void RenderLights(Renderer& renderer, const sf::Sprite& frame);
 	private:
 		LightWorld();
 		~LightWorld();
 
-		sf::RenderTexture*	m_lightMask	  = nullptr;
-		sf::Shader*			m_MaskShader  = nullptr;
-		sf::Shader*			m_SpotShader  = nullptr;
-		sf::Sprite			m_frameSprite;
+		float m_lightLevel	= 0.0f;
+		bool  m_enabled		= false;
 
-		std::unordered_set<Light*>  m_Lights;
+		sf::Shader* m_maskShader = nullptr;
+		sf::Shader* m_spotShader = nullptr;
 
-		float m_lightLevel = 1.0f;
+		sf::RenderTexture* m_frame	    = nullptr;
 
-		void Init(sf::Vector2u size);
+		sf::RenderTexture* m_lightMask  = nullptr;
+		sf::RenderTexture* m_maskBuffer = nullptr;
 
-		void Resize(sf::Vector2u size);
+		sf::Sprite m_maskSprite;
+		sf::Sprite m_frameSprite;
 
-		Light* CreateLight(LightType type);
+		std::unordered_set<Light*> m_Lights;
+
 		void DestroyLight(Light* light);
+		Light* CreateLight(LightType type);
+
+		friend struct PointLight;
+		friend struct SpotLight;
+
+		static LightWorld s_instance;
 
 		struct ShaderSource
 		{
 			const static std::string MaskVertex;
 			const static std::string MaskFragment;
-
 			const static std::string SpotVertex;
 			const static std::string SpotFragment;
 		};
-
-		friend class  Runtime;
-		friend struct PointLight;
-		friend struct SpotLight;
-
-		static LightWorld s_instance;
 	};
 }

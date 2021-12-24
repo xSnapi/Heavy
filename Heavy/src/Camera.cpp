@@ -35,6 +35,10 @@ namespace hv {
 		return m_view.getCenter();
 	}
 
+	sf::Vector2f Camera::GetSize() const {
+		return m_view.getSize();
+	}
+
 	Camera::Camera() {
 
 	}

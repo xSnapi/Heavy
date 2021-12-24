@@ -105,6 +105,9 @@ namespace hv {
 				
 				Camera::Get().Update();
 
+				if(LightWorld::Get().LightEnabled())
+					LightWorld::Get().Update();
+
 				m_mutex.unlock();
 
 				Delay();
@@ -141,7 +144,7 @@ namespace hv {
 	}
 
 	void Runtime::HandleEvents() {
-		while (m_window.pollEvent(m_event)) {
+		if (m_window.pollEvent(m_event)) {
 
 			#if ENABLE_IMGUI
 				ImGui::SFML::ProcessEvent(m_event);
@@ -192,13 +195,19 @@ namespace hv {
 				
 				m_renderer.display();
 
-				if (!LightWorld::Get().Enabled) {
+				if (!LightWorld::Get().LightEnabled()) {
 					frameSprite.setTexture(m_renderer.GetFrame());
 
 					m_window.draw(frameSprite);
 				}
 				else {
-					LightWorld::Get().RenderLights(m_window, m_renderer.GetFrame());
+					frameSprite.setTexture(m_renderer.GetFrame());
+
+					LightWorld::Get().RenderLights(m_renderer, frameSprite);
+
+					frameSprite.setTexture(m_renderer.GetFrame());
+
+					m_window.draw(frameSprite);
 				}
 
 				#if ENABLE_COLLIDER_DRAW

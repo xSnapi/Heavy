@@ -8,6 +8,12 @@ namespace hv {
 	{
 		SpotLight();
 
+		SpotLight(sf::Vector2f pos);
+
+		SpotLight(float radius);
+
+		SpotLight(sf::Vector2f pos, float radius);
+
 		SpotLight(const SpotLight& other);
 
 		~SpotLight();
@@ -16,7 +22,12 @@ namespace hv {
 
 		void SetPosition(sf::Vector2f pos);
 		void SetRadius(float radius);
+		void SetAttenuation(float attenuation);
+		void SetPower(float power);
+
 	private:
 		Light* m_light = nullptr;
+
+		void CopyLight(const SpotLight& other);
 	};
 }

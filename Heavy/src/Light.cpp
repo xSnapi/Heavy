@@ -6,8 +6,27 @@ namespace hv {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 	}
 
-	SpotLight::SpotLight(const SpotLight& other) {
+	SpotLight::SpotLight(sf::Vector2f pos) {
+		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 
+		m_light->Position = pos;
+	}
+
+	SpotLight::SpotLight(float radius) {
+		m_light = LightWorld::Get().CreateLight(LightType::Spot);
+
+		m_light->Radius = radius;
+	}
+
+	SpotLight::SpotLight(sf::Vector2f pos, float radius) {
+		m_light = LightWorld::Get().CreateLight(LightType::Spot);
+
+		m_light->Position = pos;
+		m_light->Radius   = radius;
+	}
+
+	SpotLight::SpotLight(const SpotLight& other) {
+		CopyLight(other);
 	}
 
 	SpotLight::~SpotLight() {
@@ -15,8 +34,9 @@ namespace hv {
 	}
 
 	SpotLight* SpotLight::operator=(const SpotLight& other) {
+		CopyLight(other);
 
-		return nullptr;
+		return this;
 	}
 
 	void SpotLight::SetPosition(sf::Vector2f pos) {
@@ -25,5 +45,19 @@ namespace hv {
 
 	void SpotLight::SetRadius(float radius) {
 		m_light->Radius = radius;
+	}
+
+	void SpotLight::SetAttenuation(float attenuation) {
+		m_light->Attenuation = attenuation;
+	}
+
+	void SpotLight::SetPower(float power) {
+		m_light->LightPower = power;
+	}
+
+	void SpotLight::CopyLight(const SpotLight& other) {
+		m_light = LightWorld::Get().CreateLight(LightType::Spot);
+
+		*m_light = *other.m_light;
 	}
 }
