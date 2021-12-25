@@ -17,7 +17,6 @@ namespace hv {
 
 	void LightWorld::Init(sf::Vector2u size) {
 		{
-			m_frame		 = new sf::RenderTexture();
 			m_lightMask  = new sf::RenderTexture();
 			m_maskBuffer = new sf::RenderTexture();
 		}
@@ -45,11 +44,15 @@ namespace hv {
 	}
 
 	void LightWorld::Resize(sf::Vector2u size) {
-		if (m_lightMask && m_frame) {
+		if (m_lightMask) {
 			m_lightMask->create(size.x, size.y);
-			m_frame->create(size.x, size.y);
-
 			m_maskBuffer->create(size.x, size.y);
+
+			m_lightMask->clear(sf::Color::White);
+			m_lightMask->display();
+
+			m_maskBuffer->clear(sf::Color::White);
+			m_maskBuffer->display();
 		}
 
 		if (m_spotShader)
@@ -60,7 +63,7 @@ namespace hv {
 		m_lightLevel = level;
 
 		if (m_maskShader)
-			m_maskShader->setUniform("u_level", m_lightLevel);
+			m_maskShader->setUniform("u_level", m_lightLevel < 0.0f ? 0.0f : m_lightLevel);
 	}
 
 	void LightWorld::SetLightEnabled(bool enabled) {
@@ -76,27 +79,35 @@ namespace hv {
 	}
 
 	void LightWorld::RenderLights(Renderer& renderer) {
-		m_lightMask->clear();
-		m_maskBuffer->clear(sf::Color::White);
+		if (m_changed) {
 
-		//TODO: zoptymalizowaæ u¿ywaj¹c algorytmu sprawdzaj¹cego czy cia³o jest w poprawnym miejscu
-		for (auto& l : m_Lights) {
-			m_spotShader->setUniform("u_attenuation", l->Attenuation <= 0.0f ? 0.0005f : l->Attenuation);
-			m_spotShader->setUniform("u_lightPower", l->LightPower);
-			m_spotShader->setUniform("u_position", l->Position);
-			m_spotShader->setUniform("u_radius", l->Radius);
-			m_spotShader->setUniform("u_color", sf::Vector3f(ColorToNormalizedVec3(l->Color)));
+			m_lightMask->clear();
+			m_maskBuffer->clear(sf::Color::White);
 
-			m_maskSprite.setTexture(m_maskBuffer->getTexture());
-			m_lightMask->draw(m_maskSprite, m_spotShader);
+			//TODO: zoptymalizowaæ u¿ywaj¹c algorytmu sprawdzaj¹cego czy cia³o jest w poprawnym miejscu
+			for (auto& l : m_Lights) {
+				if (!l->Drawable /*tutaj warunek ze jest poza boxem*/)
+					continue;
 
-			m_maskSprite.setTexture(m_lightMask->getTexture());
+				m_spotShader->setUniform("u_attenuation", l->Attenuation <= 0.0f ? 0.0005f : l->Attenuation);
+				m_spotShader->setUniform("u_lightPower", l->LightPower);
+				m_spotShader->setUniform("u_position", l->Position);
+				m_spotShader->setUniform("u_radius", l->Radius);
+				m_spotShader->setUniform("u_color", sf::Vector3f(ColorToNormalizedVec3(l->Color)));
 
-			m_maskBuffer->draw(m_maskSprite);
-			m_maskBuffer->display();
+				m_maskSprite.setTexture(m_maskBuffer->getTexture());
+				m_lightMask->draw(m_maskSprite, m_spotShader);
+
+				m_maskSprite.setTexture(m_lightMask->getTexture());
+
+				m_maskBuffer->draw(m_maskSprite);
+				m_maskBuffer->display();
+			}
+
+			m_lightMask->display();
+
+			m_changed = false;
 		}
-		
-		m_lightMask->display();
 
 		m_maskShader->setUniform("u_light", m_maskBuffer->getTexture());
 

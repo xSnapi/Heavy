@@ -6,10 +6,12 @@
 namespace hv {
 	class b2DebugDraw : public b2Draw {
 	public:
-        b2DebugDraw(sf::RenderWindow& window);
+        b2DebugDraw();
         ~b2DebugDraw();
+
+        void SetWindow(sf::RenderWindow& window);
 	private:
-        sf::RenderWindow& m_window;
+        sf::RenderWindow* m_window;
 
         virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
         virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);

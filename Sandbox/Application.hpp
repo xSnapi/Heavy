@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Light.hpp"
+#include "Rigid Body.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -19,4 +20,7 @@ private:
 	void InitWindow();
 
 	std::vector<hv::SpotLight> m_Lights;
+
+	hv::RigidBody rb;
+	hv::BoxCollider cl;
 };

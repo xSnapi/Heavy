@@ -8,22 +8,37 @@ namespace hv {
 	PhysicsWorld& PhysicsWorld::Get() { return s_instance; }
 
 	void PhysicsWorld::InitDebugDraw(sf::RenderWindow& window) {
-		#if ENABLE_COLLIDER_DRAW
-				// This memory leak is here on purpose
-				// we don't have to make draw static or member variable
-				// leaving it in memory will work just fine + we don't need access to it (for now)
-				// TODO: CHANGE
-				b2DebugDraw* draw = new b2DebugDraw(window);
-				m_world.SetDebugDraw(draw);
-		
-				uint32_t flags = 0;
-				flags += b2Draw::e_shapeBit;
-		
-				draw->SetFlags(flags);
-		#endif
+		m_debugDraw.SetWindow(window);
+
+		m_world.SetDebugDraw(&m_debugDraw);
+	}
+
+	uint32_t PhysicsWorld::GetB2DrawType(DebugDrawType type) const {
+		switch (type) {
+
+		case hv::DebugDrawType::Collider:
+			return b2Draw::e_shapeBit;
+
+		case hv::DebugDrawType::Joint:
+			return b2Draw::e_jointBit;
+
+		case hv::DebugDrawType::AABB:
+			return b2Draw::e_aabbBit;
+
+		case hv::DebugDrawType::MassCenter:
+			return b2Draw::e_centerOfMassBit;
+		}
+
+		return 0;
 	}
 
 	static ContactListener Listener;
+
+	void PhysicsWorld::DisableDebugDraw() {
+		m_debugDraw.SetFlags(0);
+
+		m_debugDrawEnabled = false;
+	}
 
 	PhysicsWorld::PhysicsWorld() :
 		m_world(sf::Vector2f(0.0f, 10.0f))

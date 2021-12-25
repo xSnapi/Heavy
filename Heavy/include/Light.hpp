@@ -24,11 +24,13 @@ namespace hv {
 		void SetRadius(float radius);
 		void SetAttenuation(float attenuation);
 		void SetPower(float power);
+		void SetDrawable(bool drawable);
 
 		sf::Vector2f GetPosition() const;
 		float GetRadius() const;
 		float GetAttenuation() const;
 		float GetPower() const;
+		bool  GetDrawable() const;
 
 	private:
 		Light* m_light = nullptr;

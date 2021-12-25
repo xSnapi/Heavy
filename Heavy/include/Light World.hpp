@@ -17,11 +17,12 @@ namespace hv {
 
 		float		 Radius		 = 0.0f;
 		float		 Attenuation = 0.15f;
-
 		float		 LightPower  = 1.0f;
 
 		LightType	 Type;
 		sf::Color	 Color = sf::Color::White;
+
+		bool Drawable = true;
 
 		Light(LightType type) :
 			Type(type)
@@ -64,8 +65,6 @@ namespace hv {
 		sf::Shader* m_maskShader = nullptr;
 		sf::Shader* m_spotShader = nullptr;
 
-		sf::RenderTexture* m_frame	    = nullptr;
-
 		sf::RenderTexture* m_lightMask  = nullptr;
 		sf::RenderTexture* m_maskBuffer = nullptr;
 
@@ -73,6 +72,8 @@ namespace hv {
 		sf::Sprite m_frameSprite;
 
 		std::unordered_set<Light*> m_Lights;
+
+		bool m_changed = false;
 
 		void DestroyLight(Light* light);
 		Light* CreateLight(LightType type);

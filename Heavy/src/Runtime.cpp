@@ -154,9 +154,8 @@ namespace hv {
 			m_window.draw(m_renderer.GetFrame());
 		}
 
-		#if ENABLE_COLLIDER_DRAW
+		if(PhysicsWorld::Get().m_debugDrawEnabled)
 			PhysicsWorld::Get().m_world.DebugDraw();
-		#endif
 		
 		#if ENABLE_IMGUI
 			if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
