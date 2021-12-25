@@ -30,10 +30,6 @@ namespace hv {
 		hv::SoundLibrary  ::Get().ClearSounds();
 		hv::SoundLibrary  ::Get().ClearMusics();
 
-		#if USE_MULTITHREAD
-			delete m_rendererThread;
-		#endif
-
 		#if ENABLE_IMGUI
 			ImGui::SFML::Shutdown();
 		#endif
@@ -50,15 +46,10 @@ namespace hv {
 		PhysicsWorld::Get().InitDebugDraw(m_window);
 
 		// Renderer initialization
-		m_renderer.Resize(m_window.getSize());
+		InitRenderer();
 
 		#if ENABLE_IMGUI
 			ImGui::SFML::Init(m_window);
-		#endif
-
-		#if USE_MULTITHREAD
-			m_window.setActive(false);
-			InitRenderer();
 		#endif
 
 		while (m_window.isOpen()) {
@@ -195,27 +186,31 @@ namespace hv {
 		}
 	}
 
-#if USE_MULTITHREAD
 	void Runtime::InitRenderer() {
-		m_rendererThread = new std::thread([&]() {
-			HV_PROFILE_THREAD("RendererThread");
+		m_renderer.Resize(m_window.getSize());
 
-			m_window.setActive(true);
+		#if USE_MULTITHREAD
+			m_window.setActive(false);
 
-			while (m_isRunning) {
-				m_mutex.lock();
+			m_rendererThread = new std::thread([&]() {
+				HV_PROFILE_THREAD("RendererThread");
 
-				RendererDraw();
+				m_window.setActive(true);
 
-				m_mutex.unlock();
+				while (m_isRunning) {
+					m_mutex.lock();
 
-				m_window.display();
-			}
-			
-			Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
-		});
+					RendererDraw();
+
+					m_mutex.unlock();
+
+					m_window.display();
+				}
+				
+				Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
+			});
+		#endif
 	}
-#endif
 
 	void Runtime::SetFrameLimit(uint32_t limit) {
 		m_frameLimit = limit;
