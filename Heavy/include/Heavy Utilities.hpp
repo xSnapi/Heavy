@@ -52,4 +52,13 @@ namespace hv {
 		return NormalizedVec3ToColor(A + B + C);
 	}
 
+	static bool PointIntersect
+	(
+		const sf::Vector2f& point, 
+		const sf::Vector2f& a, const sf::Vector2f& b, 
+		const sf::Vector2f& c, const sf::Vector2f& d
+	) 
+	{
+		//TODO: create
+	}
 }

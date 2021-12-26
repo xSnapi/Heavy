@@ -4,6 +4,33 @@
 #include "Light World.hpp"
 
 namespace hv {
+	struct LightEdge 
+	{
+		LightEdge();
+
+		LightEdge(sf::Vector2f start, sf::Vector2f end);
+
+		LightEdge(const LightEdge& other);
+
+		~LightEdge();
+
+		LightEdge* operator=(const LightEdge& other);
+
+		void Set(sf::Vector2f start, sf::Vector2f end);
+
+		void SetStart(sf::Vector2f start);
+		void SetEnd(sf::Vector2f end);
+
+		sf::Vector2f GetStart() const;
+		sf::Vector2f GetEnd() const;
+	private:
+		Edge* m_edge = nullptr;
+
+		void CopyEdge(const LightEdge& other);
+	};
+}
+
+namespace hv {
 	struct SpotLight
 	{
 		SpotLight();

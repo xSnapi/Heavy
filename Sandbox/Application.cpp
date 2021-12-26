@@ -8,18 +8,25 @@
 #include "Event Dispatcher.hpp"
 #include "Physics World.hpp"
 
+constexpr uint32_t WINDOW_WIDTH = 800;
+constexpr uint32_t WINDOW_HEIGHT = 800;
+
 Application::Application() {
 	InitWindow();
 	InitAssets();
 
-	m_Lights.reserve(100);
-
 	hv::LightWorld::Get().SetLightEnabled(true);
-	hv::PhysicsWorld::Get().EnableDebugDraw(hv::DebugDrawType::Collider, hv::DebugDrawType::MassCenter, hv::DebugDrawType::AABB);
+	hv::LightWorld::Get().SetShadowEnabled(true);
 
-	cl.SetSize(sf::Vector2f(200.0f, 200.0f));
-	rb.SetPosition(sf::Vector2f(400.0f, 400.0f));
-	rb.SetCollider(cl);
+	l.SetRadius(300.0f);
+	//l2.SetRadius(560.0f);
+
+	edge. Set(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(300.0f, 200.0f));
+	edge1.Set(sf::Vector2f(300.0f, 200.0f), sf::Vector2f(300.0f, 300.0f));
+	edge2.Set(sf::Vector2f(300.0f, 300.0f), sf::Vector2f(200.0f, 300.0f));
+	edge3.Set(sf::Vector2f(200.0f, 300.0f), sf::Vector2f(200.0f, 200.0f));
+	
+	edge4.Set(sf::Vector2f(300.0f, 400.0f), sf::Vector2f(600.0f, 400.0f));
 }
 
 Application::~Application() {
@@ -33,16 +40,14 @@ void Application::FixedUpdate() {
 void Application::Update() {
 	sf::Vector2f pos = hv::Input::Mouse::GetRelativePosition();
 
+	l.SetPosition(pos);
+
 	if (hv::EventDispatcher::CheckFor(sf::Event::MouseWheelScrolled)) {
 		int delta = (int)hv::EventDispatcher::GetEvent(sf::Event::MouseWheelScrolled).mouseWheelScroll.delta;
 
 		if (delta != 0)
-			for (auto& l : m_Lights)
-				l.SetAttenuation(l.GetAttenuation() + 0.05f * delta);
+			l.SetAttenuation(l.GetAttenuation() + 0.05f * delta);	
 	}
-
-	if (hv::Input::Mouse::KeyCheck(sf::Mouse::Left))
-		m_Lights.emplace_back(pos, 200.0f);
 
 	if (hv::Input::Keyboard::KeyCheck(sf::Keyboard::W, true))
 		hv::LightWorld::Get().SetLightLevel(hv::LightWorld::Get().GetLightLevel() + 0.05f);
@@ -50,8 +55,6 @@ void Application::Update() {
 	if (hv::Input::Keyboard::KeyCheck(sf::Keyboard::S, true))
 		hv::LightWorld::Get().SetLightLevel(hv::LightWorld::Get().GetLightLevel() - 0.05f);
 
-	if (hv::Input::Keyboard::KeyCheck(sf::Keyboard::Z))
-		m_Lights.pop_back();
 }
 
 void Application::Render() {

@@ -2,6 +2,60 @@
 #include "Light.hpp"
 
 namespace hv {
+	LightEdge::LightEdge() {
+		m_edge = LightWorld::Get().CreateEdge();
+	}
+
+	LightEdge::LightEdge(sf::Vector2f start, sf::Vector2f end) {
+		m_edge = LightWorld::Get().CreateEdge();
+
+		m_edge->Start = start;
+		m_edge->End   = end;
+	}
+
+	LightEdge::LightEdge(const LightEdge& other) {
+		CopyEdge(other);
+	}
+
+	LightEdge::~LightEdge() {
+		LightWorld::Get().DestroyEdge(m_edge);
+	}
+
+	LightEdge* LightEdge::operator=(const LightEdge& other) {
+		CopyEdge(other);
+
+		return this;
+	}
+
+	void LightEdge::Set(sf::Vector2f start, sf::Vector2f end) {
+		m_edge->Start = start;
+		m_edge->End   = end;
+	}
+
+	void LightEdge::SetStart(sf::Vector2f start) {
+		m_edge->Start = start;
+	}
+
+	void LightEdge::SetEnd(sf::Vector2f end) {
+		m_edge->End = end;
+	}
+
+	sf::Vector2f LightEdge::GetStart() const {
+		return m_edge->Start;
+	}
+
+	sf::Vector2f LightEdge::GetEnd() const {
+		return m_edge->End;
+	}
+
+	void LightEdge::CopyEdge(const LightEdge& other) {
+		m_edge = LightWorld::Get().CreateEdge();
+
+		*m_edge = *other.m_edge;
+	}
+}
+
+namespace hv {
 	SpotLight::SpotLight() {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 	}

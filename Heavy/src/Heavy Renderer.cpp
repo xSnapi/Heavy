@@ -13,6 +13,7 @@ namespace hv {
 	void Renderer::Resize(sf::Vector2u size) {
 		m_frame::create(size.x, size.y);
 		m_frame::clear();
+		m_frame::display();
 	}
 
 	void Renderer::clear() {
