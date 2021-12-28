@@ -100,33 +100,42 @@ namespace hv {
 	}
 
 	void SpotLight::SetPosition(sf::Vector2f pos) {
-		m_light->Position = pos;
+		if(pos != m_light->Position)
+			LightWorld::Get().m_changed = true;
 
-		LightWorld::Get().m_changed = true;
+		m_light->Position = pos;
 	}
 
 	void SpotLight::SetRadius(float radius) {
-		m_light->Radius = radius;
+		if (radius != m_light->Radius)
+			LightWorld::Get().m_changed = true;
 
-		LightWorld::Get().m_changed = true;
+		m_light->Radius = radius;
 	}
 
 	void SpotLight::SetAttenuation(float attenuation) {
-		m_light->Attenuation = attenuation;
+		if (attenuation != m_light->Attenuation)
+			LightWorld::Get().m_changed = true;
 
-		LightWorld::Get().m_changed = true;
+		m_light->Attenuation = attenuation;
 	}
 
 	void SpotLight::SetPower(float power) {
+		if(power != m_light->LightPower)
+			LightWorld::Get().m_changed = true;
+		
 		m_light->LightPower = power;
-
-		LightWorld::Get().m_changed = true;
 	}
 
 	void SpotLight::SetDrawable(bool drawable) {
-		m_light->Drawable = drawable;
+		if(drawable != m_light->Drawable)
+			LightWorld::Get().m_changed = true;
 
-		LightWorld::Get().m_changed = true;
+		m_light->Drawable = drawable;
+	}
+
+	void SpotLight::SetColor(sf::Color color) {
+		m_light->Color = color;
 	}
 
 	sf::Vector2f SpotLight::GetPosition() const {

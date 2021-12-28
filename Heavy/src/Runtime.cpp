@@ -11,6 +11,10 @@
 #include "Light World.hpp"
 
 namespace hv {
+#if ENABLE_IMGUI
+	static bool ImGuiUpdated = false;
+#endif
+
 	Runtime::Runtime() 
 		: m_event()
 	{
@@ -18,7 +22,7 @@ namespace hv {
 		Input::Init(m_window);
 
 		#if !DISABLE_CONSOLE
-			system("cls"); // <- cls makes colored output work
+			//system("cls"); // <- cls makes colored output work
 		#endif
 	}
 
@@ -42,7 +46,7 @@ namespace hv {
 
 		// Singletons initialization
 		Camera		::Get().Init(&m_window);
-		LightWorld	::Get().Init(m_window.getSize());
+		LightWorld	::Get().Init(m_lightRenderer);
 		PhysicsWorld::Get().InitDebugDraw(m_window);
 
 		// Renderer initialization
@@ -117,15 +121,12 @@ namespace hv {
 	void Runtime::FrameUpdate() {
 		#if ENABLE_IMGUI
 			ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-			m_updated = true;
+			ImGuiUpdated = true;
 		#endif
 
 		Update();
 
 		Camera::Get().Update();
-
-		if (LightWorld::Get().LightEnabled())
-			LightWorld::Get().Update();
 	}
 
 	void Runtime::RendererDraw() {
@@ -140,7 +141,7 @@ namespace hv {
 			m_window.draw(m_renderer.GetFrame());
 		}
 		else {
-			LightWorld::Get().RenderLights(m_renderer);
+			m_lightRenderer.DrawLights(m_renderer);
 
 			m_window.draw(m_renderer.GetFrame());
 		}
@@ -149,7 +150,7 @@ namespace hv {
 			PhysicsWorld::Get().m_world.DebugDraw();
 		
 		#if ENABLE_IMGUI
-			if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
+			if (ImGuiUpdated) // ImGui can't be rendered before first update (i hate multithreading)
 				ImGui::SFML::Render(m_window);
 		#endif
 	}
@@ -179,8 +180,8 @@ namespace hv {
 				break;
 
 			case sf::Event::Resized:
+				m_lightRenderer.Resize(m_window.getSize());
 				m_renderer.Resize(m_window.getSize());
-				LightWorld::Get().Resize(m_window.getSize());
 				break;
 			}
 		}
@@ -188,6 +189,7 @@ namespace hv {
 
 	void Runtime::InitRenderer() {
 		m_renderer.Resize(m_window.getSize());
+		m_lightRenderer.Resize(m_window.getSize());
 
 		#if USE_MULTITHREAD
 			m_window.setActive(false);

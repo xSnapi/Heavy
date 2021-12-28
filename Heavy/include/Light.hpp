@@ -52,6 +52,7 @@ namespace hv {
 		void SetAttenuation(float attenuation);
 		void SetPower(float power);
 		void SetDrawable(bool drawable);
+		void SetColor(sf::Color color);
 
 		sf::Vector2f GetPosition() const;
 		float GetRadius() const;

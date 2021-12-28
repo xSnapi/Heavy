@@ -22,6 +22,7 @@
 #include "Times.hpp"
 #include "Asset Loader.hpp"
 #include "Heavy Renderer.hpp"
+#include "Light Renderer.hpp"
 
 #define USE_MULTITHREAD 1
 
@@ -54,11 +55,9 @@ namespace hv {
 
 		uint32_t m_frameLimit = 0;
 
-		bool m_focus = true;
+		LightRenderer m_lightRenderer;
 
-		#if ENABLE_IMGUI
-			bool m_updated  = false;
-		#endif
+		bool m_focus = true;
 
 		#if USE_MULTITHREAD
 			std::mutex	 m_mutex;
