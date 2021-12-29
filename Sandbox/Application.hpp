@@ -18,9 +18,4 @@ private:
 
 	void InitAssets();
 	void InitWindow();
-
-	std::vector<hv::LightEdge> m_Edges;
-
-	hv::SpotLight m_light0;
-	hv::SpotLight m_light1;
 };

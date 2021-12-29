@@ -11,6 +11,7 @@
 namespace hv {
 	LightRenderer::LightRenderer() {
 		LoadShaders();
+		InitShadowBox();
 	}
 
 	LightRenderer::~LightRenderer() {
@@ -162,16 +163,6 @@ namespace hv {
 		std::sort(m_RayPoints.begin(), m_RayPoints.end(), [&](const Point& a, const Point& b) { return a.Angle < b.Angle; });
 	}
 
-	void LightRenderer::LoadShaders() {
-		{
-			m_spotShader.loadFromFile("temp/default.vert", "temp/spot.frag");
-		}
-
-		{
-			m_mergeShader.loadFromFile("temp/default.vert", "temp/merge.frag");
-		}
-	}
-
 	void LightRenderer::ResizeTextures(sf::Vector2u size) {
 		{
 			m_lightMask.create(size.x, size.y);
@@ -191,22 +182,30 @@ namespace hv {
 	}
 	
 	void LightRenderer::ResizeShadowBox() {
-		sf::Vector2f center = Camera::Get().GetCenter();
-		sf::Vector2f size   = Camera::Get().GetSize() / 2.0f;
+		//TODO: rewrite
+	}
 
-		auto& edges = LightWorld::Get().m_Edges;
-
-		if (!m_ShadowBox.empty()) {
-			for (auto& b : m_ShadowBox) {
-				edges.erase(b);
-				delete b;
-			}
+	void LightRenderer::LoadShaders() {
+		{
+			m_spotShader.loadFromFile("temp/default.vert", "temp/spot.frag");
 		}
+
+		{
+			m_mergeShader.loadFromFile("temp/default.vert", "temp/merge.frag");
+		}
+	}
+
+	void LightRenderer::InitShadowBox() {
+		sf::Vector2f center = Camera::Get().GetCenter();
+		sf::Vector2f size = Camera::Get().GetSize() / 2.0f;
 
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center   - size),						 sf::Vector2f(center.x + size.x, center.y - size.y) }));
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center.x + size.x, center.y - size.y), sf::Vector2f(center.x + size.x, center.y + size.y) }));
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center.x + size.x, center.y + size.y), sf::Vector2f(center.x - size.x, center.y + size.y) }));
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center.x - size.x, center.y + size.y), sf::Vector2f(center   - size)						}));
+
+		auto& edges = LightWorld::Get().m_Edges;
+
 
 		for (auto& b : m_ShadowBox)
 			edges.insert(b);

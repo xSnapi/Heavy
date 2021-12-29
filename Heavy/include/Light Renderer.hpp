@@ -67,11 +67,12 @@ namespace hv {
 
 		void CastRays(sf::Vector2f pos);
 
-		void LoadShaders();
-
 		void ResizeTextures(sf::Vector2u size);
 		void ResizeShaders(sf::Vector2f size);
 		void ResizeShadowBox();
+
+		void LoadShaders();
+		void InitShadowBox();
 
 		friend class LightWorld;
 	};
