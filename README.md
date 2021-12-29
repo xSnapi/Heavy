@@ -2,7 +2,7 @@
 
 # Heavy
 ## Engine for SFML games
-The main goal of Heavy is to make it as close to SFML syntax as possible for example creating rigid body is easy as ```hv::RigidBody rb;``` and thats really it.
+The main goal of Heavy is to make it as close to SFML syntax as possible. For example creating rigid body is easy as ```hv::RigidBody rb;``` and thats really it.
 ***
 
 ## Heavy uses:
@@ -24,7 +24,6 @@ In the opposite it come up pretty well (beside few things).
 
 
 ## Heavy Features:
-***
 
 ### Main Features:
 * **Uses separate thread for drawing resulting in higher performance**
