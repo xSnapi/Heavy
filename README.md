@@ -30,7 +30,7 @@ In the opposite it come up pretty well (beside few things).
 * **Separate update and fixed update allows for better physics simulations**
 * **Custom renderer makes lights and shadow possible**
 * **Delta time and fixed delta time accessible from everywhere**
-* **Well abstracted [box2d](https://github.com/erincatto/box2d) made easy to use for every one**
+* **Well abstracted [box2d](https://github.com/erincatto/box2d) made easy to use for everyone**
 * **Many profiler macros integrated from [Optick](https://github.com/bombomby/optick)**
 * **Lights and shadows easy in use and control**
 * **Asynchronous asset load**
