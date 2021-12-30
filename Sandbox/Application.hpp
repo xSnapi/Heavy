@@ -3,8 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Light.hpp"
-#include "Rigid Body.hpp"
+#include "Animator.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -18,4 +17,9 @@ private:
 
 	void InitAssets();
 	void InitWindow();
+
+	hv::Animation m_campfire;
+	hv::Animator  m_animator;
+
+	sf::Sprite m_campfireSprite;
 };

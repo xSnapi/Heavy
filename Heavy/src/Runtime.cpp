@@ -22,7 +22,7 @@ namespace hv {
 		Input::Init(m_window);
 
 		#if !DISABLE_CONSOLE
-			//system("cls"); // <- cls makes colored output work
+			system("cls"); // <- cls makes colored output work
 		#endif
 	}
 
