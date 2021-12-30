@@ -2,7 +2,7 @@
 #include "Particle Emitter.hpp"
 
 #include "Heavy Math.hpp"
-#include "Times.hpp"
+#include "Heavy Times.hpp"
 #include "Random.hpp"
 #include "Heavy Utilities.hpp"
 
