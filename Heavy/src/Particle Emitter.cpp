@@ -2,7 +2,7 @@
 #include "Particle Emitter.hpp"
 
 #include "Heavy Math.hpp"
-#include "Times.hpp"
+#include "Heavy Times.hpp"
 #include "Random.hpp"
 #include "Heavy Utilities.hpp"
 
@@ -50,7 +50,7 @@ namespace hv {
 			}
 
 			sf::Color color = HueShift(sf::Color(255, 0, 0), m_shiftClock.getElapsedTime().asSeconds());
-			color.a = life * (sf::Uint8)255;
+			color.a = sf::Uint8(life * 255);
 
 			SetQuadColor(qIndex, color);
 		}
@@ -130,7 +130,7 @@ namespace hv {
 		vertices[3] = sf::Vector2f(m_pos.x - size, m_pos.y - size);
 		vertices[4] = sf::Vector2f(m_pos.x - size, m_pos.y + size);
 		vertices[5] = sf::Vector2f(m_pos.x + size, m_pos.y + size);
-
+		//TODO: FIX
 		/*if (m_texture) {
 			sf::Vector2f size = (sf::Vector2f)m_texture->getSize();
 
@@ -144,7 +144,7 @@ namespace hv {
 		t.rotate(m_Particles.back().Rotation, m_pos);
 
 		for (auto& v : vertices) {
-			v.color = Vec3ToColor(m_birthColor);
+			v.color = !m_shift ? Vec3ToColor(m_birthColor) : HueShift(sf::Color(255, 0, 0), m_shiftClock.getElapsedTime().asSeconds());
 			v.position = t.transformPoint(v.position);
 			m_Vertices.push_back(v);
 		}

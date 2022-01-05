@@ -3,8 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Rigid Body.hpp"
-#include "Particle Emitter.hpp"
+#include "Animator.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -19,16 +18,8 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	sf::Clock m_clock;
+	hv::Animation m_campfire;
+	hv::Animator  m_animator;
 
-	std::vector<hv::RigidBody> m_Rbs;
-	hv::BoxCollider m_rigidBodyCollider;
-
-	std::vector<sf::RectangleShape> m_Boxes;
-
-	hv::RigidBody m_floor;
-	hv::BoxCollider m_floorCollider;
-	sf::RectangleShape m_floorShape;
-
-	hv::ParticleEmitter m_emitter;
+	sf::Sprite m_campfireSprite;
 };

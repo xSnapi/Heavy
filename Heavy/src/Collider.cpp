@@ -1,8 +1,7 @@
 #include <hvpch.h>
 #include "Collider.hpp"
 
-#include "Runtime.hpp"
-
+#include "Physics World.hpp"
 #include "Core.hpp"
 #include <box2d/box2d.h>
 
@@ -82,7 +81,7 @@ namespace hv {
 	EdgeCollider::EdgeCollider() {
 		b2BodyDef bodyDef;
 
-		m_body = Runtime::PhysicsWorld.CreateBody(&bodyDef);
+		m_body = PhysicsWorld::Get().m_world.CreateBody(&bodyDef);
 
 		i_fixtureDef.shape		= &m_shape;
 		i_fixtureDef.density	= 0.0f;
@@ -90,7 +89,7 @@ namespace hv {
 	}
 
 	EdgeCollider::~EdgeCollider() {
-		Runtime::PhysicsWorld.DestroyBody(m_body);
+		PhysicsWorld::Get().m_world.DestroyBody(m_body);
 	}
 
 	void EdgeCollider::AddPoints(sf::Vector2f start, sf::Vector2f end) {

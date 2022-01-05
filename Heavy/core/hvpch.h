@@ -1,6 +1,10 @@
 #pragma once
 #include <random>
 #include <functional>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+#include <map>
 #include <thread>
 #include <array>
 #include <vector>

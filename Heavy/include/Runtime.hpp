@@ -19,8 +19,10 @@
 #include <mutex>
 #include <thread>
 
-#include "Times.hpp"
+#include "Heavy Times.hpp"
 #include "Asset Loader.hpp"
+#include "Heavy Renderer.hpp"
+#include "Light Renderer.hpp"
 
 #define USE_MULTITHREAD 1
 
@@ -36,12 +38,11 @@ namespace hv {
 
 		void Run();
 
-		static b2World PhysicsWorld;
 	protected:
 		sf::RenderWindow m_window;
 		sf::Event m_event;
 
-		sf::Color m_clearColor;
+		Renderer  m_renderer;
 
 		double m_physicsStep = 0.01;
 		double m_pet		 = 0.0; // physics elapsed time
@@ -54,19 +55,19 @@ namespace hv {
 
 		uint32_t m_frameLimit = 0;
 
+		LightRenderer m_lightRenderer;
+
 		bool m_focus = true;
 
-		#if ENABLE_IMGUI
-			bool m_updated  = false;
+		#if USE_MULTITHREAD
+			std::mutex	 m_mutex;
+			std::thread* m_rendererThread = nullptr;
+			bool		 m_isRunning	  = true;
 		#endif
 
-		#if USE_MULTITHREAD
-			std::mutex m_mutex;
-			std::thread* m_rendererThread = nullptr;
-			bool m_isRunning = true;
-		#endif
-		
-		void InitPhysicsWorld();
+		void FrameFixedUpdate();
+		void FrameUpdate();
+		void RendererDraw();
 		void HandleEvents();
 		void InitRenderer();
 		void Delay();

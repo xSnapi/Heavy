@@ -1,7 +1,7 @@
 #include <hvpch.h>
 #include "Camera.hpp"
 
-#include "Times.hpp"
+#include "Heavy Times.hpp"
 #include "Random.hpp"
 
 namespace hv {
@@ -9,8 +9,6 @@ namespace hv {
 
 	void Camera::Init(sf::RenderWindow* window) {
 		m_window = window;
-
-		HV_ASSERT(m_window);
 
 		Resize((sf::Vector2f)m_window->getSize());
 	}
@@ -35,6 +33,10 @@ namespace hv {
 
 	sf::Vector2f Camera::GetCenter() const {
 		return m_view.getCenter();
+	}
+
+	sf::Vector2f Camera::GetSize() const {
+		return m_view.getSize();
 	}
 
 	Camera::Camera() {

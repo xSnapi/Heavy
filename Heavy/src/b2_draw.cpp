@@ -8,17 +8,16 @@
 namespace hv {
 	static sf::Color COLLIDER_COLOR = sf::Color(64, 224, 36);
 
-	b2DebugDraw::b2DebugDraw
-	(
-		sf::RenderWindow& window
-	)
-		: m_window(window)
-	{
+	b2DebugDraw::b2DebugDraw() {
 
 	}
 
 	b2DebugDraw::~b2DebugDraw() {
 
+	}
+
+	void b2DebugDraw::SetWindow(sf::RenderWindow& window) {
+		m_window = &window;
 	}
 
 	void b2DebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
@@ -48,7 +47,8 @@ namespace hv {
 			{ vertices[2] * Constants::PPM, COLLIDER_COLOR},
 		};
 
-		m_window.draw(drawVertcies, 6, sf::LineStrip);
+		if(m_window)
+			m_window->draw(drawVertcies, 6, sf::LineStrip);
 	}
 
 	void b2DebugDraw::DrawCircle(const b2Vec2& center, float radius, const b2Color& color) {
@@ -107,8 +107,10 @@ namespace hv {
 
 		line[1] = sf::Vertex(t.transformPoint(pos), COLLIDER_COLOR);
 
-		m_window.draw(vertices, points + 1, sf::LineStrip);
-		m_window.draw(line, 2, sf::Lines);
+		if (m_window) {
+			m_window->draw(vertices, points + 1, sf::LineStrip);
+			m_window->draw(line, 2, sf::Lines);
+		}
 	}
 
 	void b2DebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {
@@ -138,38 +140,38 @@ namespace hv {
 			{ p2 * Constants::PPM + sf::Vector2f( 2.5f,  2.5f), COLLIDER_COLOR },
 		};
 
-		m_window.draw(line,  2,  sf::Lines);
-		m_window.draw(quads, 12, sf::Triangles);
+		if (m_window) {
+			m_window->draw(line, 2, sf::Lines);
+			m_window->draw(quads, 12, sf::Triangles);
+		}
 	}
 
 	void b2DebugDraw::DrawPoint(const b2Vec2& p, float size, const b2Color& color) {
-		/*glColor4f(color.r, color.g, color.b, 1);
+		glColor4f(color.r, color.g, color.b, 1);
 		glPointSize(1.0f);
 		glBegin(GL_POINTS);
 		glVertex2f(p.x * 30, p.y * 30);
-		glEnd();*/
+		glEnd();
 	}
 
 	void b2DebugDraw::DrawAABB(b2AABB* aabb, const b2Color& c) {
-
-		//glColor4f(c.r, c.g, c.b, 1);
-		//glBegin(GL_LINE_LOOP);
-		//glVertex2f(aabb->lowerBound.x * 30, aabb->lowerBound.y * 30);
-		//glVertex2f(aabb->upperBound.x * 30, aabb->lowerBound.y * 30);
-		//glVertex2f(aabb->upperBound.x * 30, aabb->upperBound.y * 30);
-		//glVertex2f(aabb->lowerBound.x * 30, aabb->upperBound.y * 30);
-		//glEnd();
+		glColor4f(c.r, c.g, c.b, 1);
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(aabb->lowerBound.x * 30, aabb->lowerBound.y * 30);
+		glVertex2f(aabb->upperBound.x * 30, aabb->lowerBound.y * 30);
+		glVertex2f(aabb->upperBound.x * 30, aabb->upperBound.y * 30);
+		glVertex2f(aabb->lowerBound.x * 30, aabb->upperBound.y * 30);
+		glEnd();
 	}
 
 	void b2DebugDraw::DrawTransform(const b2Transform& xf) {
-
-		//b2Vec2 p1 = xf.p, p2;
-		//const float k_axisScale = 0.0f;
-
-		//p2 = p1 + k_axisScale * xf.q.GetXAxis();
-		//DrawSegment(p1, p2, b2Color(1, 0, 0));
-
-		//p2 = p1 + k_axisScale * xf.q.GetYAxis();
-		//DrawSegment(p1, p2, b2Color(0, 1, 0));
+		b2Vec2 p1 = xf.p, p2;
+		const float k_axisScale = 0.0f;
+		
+		p2 = p1 + k_axisScale * xf.q.GetXAxis();
+		DrawSegment(p1, p2, b2Color(1, 0, 0));
+		
+		p2 = p1 + k_axisScale * xf.q.GetYAxis();
+		DrawSegment(p1, p2, b2Color(0, 1, 0));
 	}
 }

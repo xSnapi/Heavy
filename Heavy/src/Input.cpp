@@ -58,8 +58,8 @@ namespace hv {
 		return s_window->mapPixelToCoords(sf::Mouse::getPosition());
 	}
 
-	void Input::Init(sf::RenderWindow* window) {
-		s_window = window;
+	void Input::Init(sf::RenderWindow& window) {
+		s_window = &window;
 
 		// Keyboard init
 		for (int i = -1; i < sf::Keyboard::KeyCount; i++)

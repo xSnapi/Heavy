@@ -10,7 +10,6 @@
 
 // Linker /ignore:4006 removes warning that optick and SFML gave
 
-#define ENABLE_COLLIDER_DRAW 0
 #define ENABLE_IMGUI		 1
 #define DISABLE_PROFILING	 0
 #define DISABLE_CONSOLE		 0

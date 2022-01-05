@@ -5,23 +5,21 @@
 #include "Heavy Debug.hpp"
 #include "Input.hpp"
 #include "Camera.hpp"
-
 #include "Heavy ImGui.hpp"
-
-#include "b2_draw.hpp"
-#include "Collider.hpp"
 #include "Asset Manager.hpp"
+#include "Physics World.hpp"
+#include "Light World.hpp"
 
 namespace hv {
-	b2World Runtime::PhysicsWorld(sf::Vector2f(0.0f, 10.0f));
+#if ENABLE_IMGUI
+	static bool ImGuiUpdated = false;
+#endif
 
 	Runtime::Runtime() 
 		: m_event()
 	{
-		InitPhysicsWorld();
-
-		EventDispatcher::Init(m_event, m_focus);
-		Input::Init(&m_window);
+		EventDispatcher::Init(m_focus);
+		Input::Init(m_window);
 
 		#if !DISABLE_CONSOLE
 			system("cls"); // <- cls makes colored output work
@@ -36,35 +34,26 @@ namespace hv {
 		hv::SoundLibrary  ::Get().ClearSounds();
 		hv::SoundLibrary  ::Get().ClearMusics();
 
-		#if USE_MULTITHREAD
-			delete m_rendererThread;
-		#endif
-
 		#if ENABLE_IMGUI
 			ImGui::SFML::Shutdown();
 		#endif
 	}
 
 	void Runtime::Run() {
-
-		// Physics step settings
-		constexpr uint32_t velocityCorrection = 12;
-		constexpr uint32_t positionCorrection = 8;
-
 		GLInit();
 
 		HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
 
 		// Singletons initialization
-		Camera::Get().Init(&m_window);
+		Camera		::Get().Init(&m_window);
+		LightWorld	::Get().Init(m_lightRenderer);
+		PhysicsWorld::Get().InitDebugDraw(m_window);
+
+		// Renderer initialization
+		InitRenderer();
 
 		#if ENABLE_IMGUI
 			ImGui::SFML::Init(m_window);
-		#endif
-
-		#if USE_MULTITHREAD
-			m_window.setActive(false);
-			InitRenderer();
 		#endif
 
 		while (m_window.isOpen()) {
@@ -79,58 +68,36 @@ namespace hv {
 				#if USE_MULTITHREAD
 					m_mutex.lock();
 					
-					FixedUpdate();
-					
-					PhysicsWorld.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					FrameFixedUpdate();
 
 					m_mutex.unlock();
 				#else
-					FixedUpdate();
-					PhysicsWorld.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+					FrameFixedUpdate();
 				#endif
 
 				m_pet -= m_physicsStep;
 			}
 
+			m_focus = m_window.hasFocus();
 			HandleEvents();
 
 			#if USE_MULTITHREAD
 				m_mutex.lock();
 
-				#if ENABLE_IMGUI
-					ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-					m_updated = true;
-				#endif
-
-				Update();
-				
-				Camera::Get().Update();
+				FrameUpdate();
 
 				m_mutex.unlock();
 
 				Delay();
 			#else
-				#if ENABLE_IMGUI
-					ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-				#endif
+				FrameUpdate();
 
-				Update();
-
-				Camera::Get().Update();
-
-				m_window.clear();
-				Render();
-				
-				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld.DebugDraw();
-				#endif
-				#if ENABLE_IMGUI
-					ImGui::SFML::Render(m_window);
-				#endif
+				RendererDraw();
 
 				m_window.display();
-
 			#endif
+
+			EventDispatcher::Clear();
 
 			if(m_focus)
 				Input::Update();
@@ -141,23 +108,51 @@ namespace hv {
 		}
 	}
 
-	static ContactListener Listener;
-	void Runtime::InitPhysicsWorld()  {
-		#if ENABLE_COLLIDER_DRAW
-			// This memory leak is here on purpose
-			// we don't have to make draw static or member variable
-			// leaving it in memory will work just fine + we don't need access to it (for now)
-			// TODO: CHANGE
-			b2DebugDraw* draw = new b2DebugDraw(m_window);
-			PhysicsWorld.SetDebugDraw(draw);
+	void Runtime::FrameFixedUpdate() {
+		// Physics step settings
+		constexpr uint32_t velocityCorrection = 12;
+		constexpr uint32_t positionCorrection = 8;
 
-			uint32_t flags = 0;
-			flags += b2Draw::e_shapeBit;
+		FixedUpdate();
 
-			draw->SetFlags(flags);
+		PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+	}
+
+	void Runtime::FrameUpdate() {
+		#if ENABLE_IMGUI
+			ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
+			ImGuiUpdated = true;
 		#endif
 
-		PhysicsWorld.SetContactListener(&Listener);
+		Update();
+
+		Camera::Get().Update();
+	}
+
+	void Runtime::RendererDraw() {
+		m_renderer.clear();
+
+		Render();
+
+		m_renderer.display();
+
+		// Drawing Heavy components
+		if (!LightWorld::Get().LightEnabled()) {
+			m_window.draw(m_renderer.GetFrame());
+		}
+		else {
+			m_lightRenderer.DrawLights(m_renderer);
+
+			m_window.draw(m_renderer.GetFrame());
+		}
+
+		if(PhysicsWorld::Get().m_debugDrawEnabled)
+			PhysicsWorld::Get().m_world.DebugDraw();
+		
+		#if ENABLE_IMGUI
+			if (ImGuiUpdated) // ImGui can't be rendered before first update (i hate multithreading)
+				ImGui::SFML::Render(m_window);
+		#endif
 	}
 
 	void Runtime::HandleEvents() {
@@ -166,6 +161,8 @@ namespace hv {
 			#if ENABLE_IMGUI
 				ImGui::SFML::ProcessEvent(m_event);
 			#endif
+
+			EventDispatcher::DispatchEvent(m_event);
 
 			switch (m_event.type) {
 			case sf::Event::Closed:
@@ -179,46 +176,43 @@ namespace hv {
 				break;
 
 			case sf::Event::LostFocus:
-				m_focus = false;
 				Input::BlockInput();
 				break;
 
-			case sf::Event::GainedFocus:
-				m_focus = true;
+			case sf::Event::Resized:
+				m_lightRenderer.Resize(m_window.getSize());
+				m_renderer.Resize(m_window.getSize());
 				break;
 			}
 		}
 	}
 
-#if USE_MULTITHREAD
 	void Runtime::InitRenderer() {
-		m_rendererThread = new std::thread([&]() {
-			HV_PROFILE_THREAD("RendererThread");
+		m_renderer.Resize(m_window.getSize());
+		m_lightRenderer.Resize(m_window.getSize());
 
-			m_window.setActive(true);
+		#if USE_MULTITHREAD
+			m_window.setActive(false);
 
-			while (m_isRunning) {
-				m_window.clear(m_clearColor);
+			m_rendererThread = new std::thread([&]() {
+				HV_PROFILE_THREAD("RendererThread");
 
-				m_mutex.lock();
-				Render();
+				m_window.setActive(true);
+
+				while (m_isRunning) {
+					m_mutex.lock();
+
+					RendererDraw();
+
+					m_mutex.unlock();
+
+					m_window.display();
+				}
 				
-				#if ENABLE_COLLIDER_DRAW
-					PhysicsWorld.DebugDraw();
-				#endif
-				#if ENABLE_IMGUI
-					if (m_updated) // ImGui can't be rendered before first update (i hate multithreading)
-						ImGui::SFML::Render(m_window);
-				#endif
-				m_mutex.unlock();
-
-				m_window.display();
-			}
-			
-			Debug::Log(Color::Green, "Renderer Exited successfully\n");
-		});
+				Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
+			});
+		#endif
 	}
-#endif
 
 	void Runtime::SetFrameLimit(uint32_t limit) {
 		m_frameLimit = limit;

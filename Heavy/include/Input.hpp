@@ -37,7 +37,7 @@ namespace hv {
 			static sf::Vector2f GetCoords();
 		};
 
-		static void Init(sf::RenderWindow* window);
+		static void Init(sf::RenderWindow& window);
 		static void Update();
 		static void BlockInput();
 

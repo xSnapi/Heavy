@@ -67,8 +67,8 @@ namespace hv {
 	static Mat4x4 Ortho(float left, float right, float bottom, float top, float zNear, float zFar) {
 		Mat4x4 proj;
 
-		proj[0][0] =  2.0f / (right - left);
-		proj[1][1] =  2.0f / (top - bottom);
+		proj[0][0] = 2.0f / (right - left);
+		proj[1][1] = 2.0f / (top - bottom);
 		proj[2][2] = -2.0f / (zFar - zNear);
 		// x idzie pierwszy potem y
 
@@ -81,19 +81,11 @@ namespace hv {
 		return proj;
 	}
 
-	inline float Lerp(const float& x, const float& y, const float& t) { // Linear interpolation
-		return x * (1.0f - t) + y * t;
+	inline float Length(const sf::Vector2f v) {
+		return sqrt((v.x * v.x) + (v.y * v.y));
 	}
 
-	inline sf::Vector3f Lerp(const sf::Vector3f& x, const sf::Vector3f& y, const float& t) {
-		return x * (1.0f - t) + y * t;
-	}
-
-	inline sf::Vector2f Lerp(const sf::Vector2f& x, const sf::Vector2f& y, const float& t) {
-		return x * (1.0f - t) + y * t;
-	}
-
-	inline float Distance(const sf::Vector2f& v0, const sf::Vector2f& v1) { // Distance between two points
+	static float Distance(const sf::Vector2f& v0, const sf::Vector2f& v1) { // Distance between two points
 		if (v0.x == v1.x)
 			return fabs(v0.y - v1.y);
 		else if (v0.y == v1.y)
@@ -106,7 +98,7 @@ namespace hv {
 		return var / abs(var);
 	}
 
-	inline sf::Vector2f Abs(sf::Vector2f v) {
+	static sf::Vector2f Abs(sf::Vector2f v) {
 		v.x = (v.x < 0.0f ? -v.x : v.x);
 		v.y = (v.y < 0.0f ? -v.y : v.y);
 
@@ -117,11 +109,7 @@ namespace hv {
 		return v0.x * v1.y - v0.y * v1.x;
 	}
 
-	inline float DotProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
-		return v0.x * v1.x + v0.y * v1.y;
-	}
-
-	static sf::Vector3f CrossProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
+	inline sf::Vector3f CrossProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
 		return sf::Vector3f
 		(
 			v0.y * v1.z - v0.z * v1.y,
@@ -130,7 +118,29 @@ namespace hv {
 		);
 	}
 
-	static float DotProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
+	static sf::Vector2f normalize(const sf::Vector2f& v) {
+		float length = Length(v);
+
+		return length != 0.0f ? sf::Vector2f(v.x / length, v.y / length) : v;
+	}
+
+	inline float DotProduct(const sf::Vector2f& v0, const sf::Vector2f& v1) {
+		return v0.x * v1.x + v0.y * v1.y;
+	}
+
+	inline float DotProduct(const sf::Vector3f& v0, const sf::Vector3f& v1) {
 		return v0.x * v1.x + v0.y * v1.y + v0.z * v1.z;
+	}
+
+	inline float Lerp(const float& x, const float& y, const float& t) { // Linear interpolation
+		return x * (1.0f - t) + y * t;
+	}
+
+	inline sf::Vector2f Lerp(const sf::Vector2f& x, const sf::Vector2f& y, const float& t) {
+		return x * (1.0f - t) + y * t;
+	}
+
+	inline sf::Vector3f Lerp(const sf::Vector3f& x, const sf::Vector3f& y, const float& t) {
+		return x * (1.0f - t) + y * t;
 	}
 }
