@@ -21,6 +21,8 @@ namespace hv {
 
 	void LightWorld::Init(LightRenderer& lightRenderer) {
 		m_lightRenderer = &lightRenderer;
+
+		m_lightRenderer->m_mergeShader.setUniform("u_level", m_lightLevel < 0.0f ? 0.0f : m_lightLevel);
 	}
 
 	LightWorld& LightWorld::Get() {
@@ -44,6 +46,10 @@ namespace hv {
 
 	void LightWorld::SetLightEnabled(bool enabled) {
 		m_lightEnabled = enabled;
+	}
+
+	void LightWorld::DisableDebugDraw() {
+		m_debugDraw = false;
 	}
 
 	float LightWorld::GetShadowSoftness() const {

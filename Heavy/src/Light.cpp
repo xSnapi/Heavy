@@ -1,6 +1,8 @@
 #include <hvpch.h>
 #include "Light.hpp"
 
+#include "Heavy ImGui.hpp"
+
 namespace hv {
 	LightEdge::LightEdge() {
 		m_edge = LightWorld::Get().CreateEdge();
@@ -56,11 +58,11 @@ namespace hv {
 }
 
 namespace hv {
-	SpotLight::SpotLight() {
+	PointLight::PointLight() {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 	}
 
-	SpotLight::SpotLight(sf::Vector2f pos) {
+	PointLight::PointLight(sf::Vector2f pos) {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 
 		m_light->Position = pos;
@@ -68,7 +70,7 @@ namespace hv {
 		LightWorld::Get().m_changed = true;
 	}
 
-	SpotLight::SpotLight(float radius) {
+	PointLight::PointLight(float radius) {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 
 		m_light->Radius = radius;
@@ -76,7 +78,7 @@ namespace hv {
 		LightWorld::Get().m_changed = true;
 	}
 
-	SpotLight::SpotLight(sf::Vector2f pos, float radius) {
+	PointLight::PointLight(sf::Vector2f pos, float radius) {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 
 		m_light->Position = pos;
@@ -85,80 +87,113 @@ namespace hv {
 		LightWorld::Get().m_changed = true;
 	}
 
-	SpotLight::SpotLight(const SpotLight& other) {
+	PointLight::PointLight(const PointLight& other) {
 		CopyLight(other);
 	}
 
-	SpotLight::~SpotLight() {
+	PointLight::~PointLight() {
 		LightWorld::Get().DestroyLight(m_light);
 	}
 
-	SpotLight* SpotLight::operator=(const SpotLight& other) {
+	PointLight* PointLight::operator=(const PointLight& other) {
 		CopyLight(other);
 
 		return this;
 	}
 
-	void SpotLight::SetPosition(sf::Vector2f pos) {
+	void PointLight::SetPosition(sf::Vector2f pos) {
 		if(pos != m_light->Position)
 			LightWorld::Get().m_changed = true;
 
 		m_light->Position = pos;
 	}
 
-	void SpotLight::SetRadius(float radius) {
+	void PointLight::SetRadius(float radius) {
 		if (radius != m_light->Radius)
 			LightWorld::Get().m_changed = true;
 
 		m_light->Radius = radius;
 	}
 
-	void SpotLight::SetAttenuation(float attenuation) {
+	void PointLight::SetAttenuation(float attenuation) {
 		if (attenuation != m_light->Attenuation)
 			LightWorld::Get().m_changed = true;
 
 		m_light->Attenuation = attenuation;
 	}
 
-	void SpotLight::SetPower(float power) {
+	void PointLight::SetPower(float power) {
 		if(power != m_light->LightPower)
 			LightWorld::Get().m_changed = true;
 		
 		m_light->LightPower = power;
 	}
 
-	void SpotLight::SetDrawable(bool drawable) {
+	void PointLight::SetDrawable(bool drawable) {
 		if(drawable != m_light->Drawable)
 			LightWorld::Get().m_changed = true;
 
 		m_light->Drawable = drawable;
 	}
 
-	void SpotLight::SetColor(sf::Color color) {
+	void PointLight::SetColor(sf::Color color) {
 		m_light->Color = color;
 	}
 
-	sf::Vector2f SpotLight::GetPosition() const {
+	sf::Vector2f PointLight::GetPosition() const {
 		return m_light->Position;
 	}
 
-	float SpotLight::GetRadius() const {
+	float PointLight::GetRadius() const {
 		return m_light->Radius;
 	}
 
-	float SpotLight::GetAttenuation() const {
+	float PointLight::GetAttenuation() const {
 		return m_light->Attenuation;
 	}
 
-	float SpotLight::GetPower() const {
+	float PointLight::GetPower() const {
 		return m_light->LightPower;
 	}
 
-	bool SpotLight::GetDrawable() const {
+	bool PointLight::GetDrawable() const {
 		return m_light->Drawable;
 	}
 
-	void SpotLight::CopyLight(const SpotLight& other) {
+	void PointLight::DisplayImGuiInfo(const char* tabName) const {
+		if (ImGui::CollapsingHeader(tabName)) {
+			auto& changed = LightWorld::Get().m_changed;
+
+			float* pos[2]
+			{
+				&m_light->Position.x,
+				&m_light->Position.y,
+			};
+
+			if (ImGui::DragFloat2("Position", *pos, 0.5f))
+				changed = true;
+			if (ImGui::DragFloat("Radius", &m_light->Radius, 0.5f))
+				changed = true;
+			if (ImGui::DragFloat("Attenuation", &m_light->Attenuation, 0.001f, 0.0f))
+				changed = true;
+			if (ImGui::DragFloat("Light Power", &m_light->LightPower, 0.5f))
+				changed = true;
+			
+			float color[3]
+			{
+				(float)m_light->Color.r / 255.0f,
+				(float)m_light->Color.g / 255.0f,
+				(float)m_light->Color.b / 255.0f,
+			};
+
+			if (ImGui::ColorPicker3(tabName, color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_RGB)) {
+				m_light->Color = sf::Color(uint8_t(color[0] * 255.0f), uint8_t(color[1] * 255.0f), uint8_t(color[2] * 255.0f), 255);
+				changed = true;
+			}
+		}
+	}
+
+	void PointLight::CopyLight(const PointLight& other) {
 		m_light = LightWorld::Get().CreateLight(LightType::Spot);
 
 		*m_light = *other.m_light;

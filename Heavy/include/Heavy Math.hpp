@@ -85,6 +85,12 @@ namespace hv {
 		return sqrt((v.x * v.x) + (v.y * v.y));
 	}
 
+	static float Smoothstep(float a0, float a1, float x) {
+		float t = std::clamp<float>((x - a0) / (a1 - a0), 0.0f, 1.0f);
+
+		return t * t * (3.0f - 2.0f * t);
+	}
+
 	static float Distance(const sf::Vector2f& v0, const sf::Vector2f& v1) { // Distance between two points
 		if (v0.x == v1.x)
 			return fabs(v0.y - v1.y);

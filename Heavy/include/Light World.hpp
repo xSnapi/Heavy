@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Vertex.hpp>
 
 #include "Light Renderer.hpp"
+#include "b2_draw.hpp"
 
 namespace hv {
 	enum class LightType { Point = 0, Spot };
@@ -57,6 +58,26 @@ namespace hv {
 
 		void SetLightLevel(float level);
 		void SetLightEnabled(bool enabled);
+		
+		template<typename ...T>
+		void EnableDebugDraw(T&&... args) {
+			uint32_t size = sizeof...(args);
+
+			if (size > 2)
+				return;
+
+			uint32_t sum = 0;
+
+			uint32_t buffer[] = { uint32_t(args)... };
+
+			for (uint32_t i = 0; i < size; i++)
+				sum += buffer[i];
+
+			m_flags = sum;
+			m_debugDraw = true;
+		}
+
+		void DisableDebugDraw();
 
 		// Accessors
 		float GetShadowSoftness() const;
@@ -77,6 +98,9 @@ namespace hv {
 		bool m_lightEnabled   = false;
 
 		bool m_changed = false;
+
+		bool	 m_debugDraw = false;
+		uint32_t m_flags	 = 0;
 
 		std::unordered_set<Light*> m_Lights;
 		std::unordered_set<Edge*>  m_Edges;

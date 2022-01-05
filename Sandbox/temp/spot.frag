@@ -39,7 +39,7 @@ void main() {
 	
 	shadowPixel *= circleShape;
 
-    vec4 circle = vec4(1.0 - (u_color * circleShape) * u_lightPower, 1.0) + shadowPixel;
+    vec4 circle = vec4(1.0 - (u_color * circleShape) * u_lightPower, 1.0) + shadowPixel * u_lightPower;
 
 	o_color = pixel * circle;
 }

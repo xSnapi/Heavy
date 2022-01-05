@@ -31,21 +31,21 @@ namespace hv {
 }
 
 namespace hv {
-	struct SpotLight
+	struct PointLight
 	{
-		SpotLight();
+		PointLight();
 
-		SpotLight(sf::Vector2f pos);
+		PointLight(sf::Vector2f pos);
 
-		SpotLight(float radius);
+		PointLight(float radius);
 
-		SpotLight(sf::Vector2f pos, float radius);
+		PointLight(sf::Vector2f pos, float radius);
 
-		SpotLight(const SpotLight& other);
+		PointLight(const PointLight& other);
 
-		~SpotLight();
+		~PointLight();
 
-		SpotLight* operator=(const SpotLight& other);
+		PointLight* operator=(const PointLight& other);
 
 		void SetPosition(sf::Vector2f pos);
 		void SetRadius(float radius);
@@ -60,9 +60,10 @@ namespace hv {
 		float GetPower() const;
 		bool  GetDrawable() const;
 
+		void DisplayImGuiInfo(const char* tabName) const;
 	private:
 		Light* m_light = nullptr;
 
-		void CopyLight(const SpotLight& other);
+		void CopyLight(const PointLight& other);
 	};
 }

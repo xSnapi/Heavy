@@ -10,10 +10,6 @@
 */
 
 namespace hv {
-	enum class DebugDrawType { Collider = 0, Joint, AABB, MassCenter };
-}
-
-namespace hv {
 	class  RigidBody;
 	class  Runtime;
 	struct EdgeCollider;

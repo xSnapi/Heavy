@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Animator.hpp"
+#include "Light.hpp"
 
 class Application : public hv::Runtime {
 public:
@@ -18,8 +18,10 @@ private:
 	void InitAssets();
 	void InitWindow();
 
-	hv::Animation m_campfire;
-	hv::Animator  m_animator;
+	hv::PointLight l0;
+	//hv::SpotLight l1;
 
-	sf::Sprite m_campfireSprite;
+	hv::LightEdge ed;
+
+	std::vector<hv::LightEdge> edges;
 };

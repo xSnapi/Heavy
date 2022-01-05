@@ -4,6 +4,8 @@
 #include <box2d/b2_draw.h>
 
 namespace hv {
+	enum class DebugDrawType { Collider = 0, Joint, AABB, MassCenter, Light, LightEdge };
+
 	class b2DebugDraw : public b2Draw {
 	public:
         b2DebugDraw();
@@ -11,7 +13,7 @@ namespace hv {
 
         void SetWindow(sf::RenderWindow& window);
 	private:
-        sf::RenderWindow* m_window;
+        sf::RenderWindow* m_window = nullptr;
 
         virtual void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
         virtual void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);

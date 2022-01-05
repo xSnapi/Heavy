@@ -10,11 +10,13 @@
 
 #include <Heavy Math.hpp>
 
+#include "Heavy Renderer.hpp"
+
 namespace hv {
 	class Camera {
 	public:
 		static Camera& Get();
-		void Init(sf::RenderWindow* window);
+		void Init(Renderer& renderer);
 
 		void Update();
 
@@ -23,11 +25,12 @@ namespace hv {
 
 		// Modifiers
 		void Move(sf::Vector2f offset);
+		void Zoom(float zoom);
 
 		// Accessors
 		sf::Vector2f GetCenter() const;
 		sf::Vector2f GetSize() const;
-
+		float GetZoom() const;
 	private:
 		Camera();
 		~Camera();
@@ -42,7 +45,10 @@ namespace hv {
 		};
 
 		sf::View m_view;
-		sf::RenderWindow* m_window = nullptr;
+
+		Renderer* m_renderer = nullptr;
+
+		float m_zoom = 1.0f;
 
 		float m_shakeElapsedTime = 0.0f;
 		float m_shakeTime = 0.0f;

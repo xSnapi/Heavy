@@ -18,7 +18,8 @@ namespace hv {
 	(
 		uint32_t frameCountX, 
 		uint32_t frameCountY, 
-		uint32_t offset, 
+		SpriteSheet mode,
+		uint32_t offset,
 		sf::Sprite* sprite, 
 		sf::Texture* texture
 	) 
@@ -37,7 +38,7 @@ namespace hv {
 		delete[] Frames;
 		Frames = new sf::IntRect[frameCountX * frameCountY];
 
-		bool rd = Mode == SpriteSheet::RightDown;
+		bool rd = mode == SpriteSheet::RightDown;
 
 		if (rd)
 			frameCountY += offset;
@@ -77,12 +78,11 @@ namespace hv {
 		}
 	}
 
-	void Animation::GetImGuiInfo(const char* tabName) {
-
+	void Animation::DisplayImGuiInfo(const char* tabName) {
 		if(ImGui::CollapsingHeader(tabName)) {
 			ImGui::Text("Size: ");
 			ImGui::Indent(25.0f);
-			ImGui::Text("Width  %d\nHeight %d", FrameWidth, FrameHeight);
+			ImGui::Text("Width %d\nHeight %d", FrameWidth, FrameHeight);
 			ImGui::Indent(-25.0f);
 
 			ImGui::DragFloat("Speed", &Speed, 0.001f, 0.0f, 9999.9f);
@@ -133,8 +133,8 @@ namespace hv {
 			animation.m_elapsedTime -= m_animationSpeed;
 
 			if (++animation.CurrentFrame > (int32_t)animation.FrameCount - 1) {
-				if (animation.Function)
-					animation.Function();
+				if (animation.OnEnd)
+					animation.OnEnd();
 
 				if (animation.PlayOnce)
 					animation.Playable = false;
@@ -151,8 +151,8 @@ namespace hv {
 			animation.m_elapsedTime -= m_animationSpeed;
 
 			if (--animation.CurrentFrame < 0) {
-				if (animation.Function)
-					animation.Function();
+				if (animation.OnEnd)
+					animation.OnEnd();
 
 				if (animation.PlayOnce)
 					animation.Playable = false;

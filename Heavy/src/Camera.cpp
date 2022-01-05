@@ -7,16 +7,16 @@
 namespace hv {
 	Camera& Camera::Get() { return s_instance; }
 
-	void Camera::Init(sf::RenderWindow* window) {
-		m_window = window;
+	void Camera::Init(Renderer& renderer) {
+		m_renderer = &renderer;
 
-		Resize((sf::Vector2f)m_window->getSize());
+		Resize((sf::Vector2f)m_renderer->GetWindow().getSize());
 	}
 
 	void Camera::Update() {
 		ApplyEffects();
 
-		m_window->setView(m_view);
+		m_renderer->setView(m_view);
 	}
 
 	void Camera::Shake(float time, int power) {
@@ -31,12 +31,22 @@ namespace hv {
 		m_view.move(offset);
 	}
 
+	void Camera::Zoom(float zoom) {
+		m_zoom = zoom;
+
+		m_view.zoom(m_zoom);
+	}
+
 	sf::Vector2f Camera::GetCenter() const {
 		return m_view.getCenter();
 	}
 
 	sf::Vector2f Camera::GetSize() const {
 		return m_view.getSize();
+	}
+
+	float Camera::GetZoom() const {
+		return m_zoom;
 	}
 
 	Camera::Camera() {

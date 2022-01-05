@@ -52,18 +52,17 @@ namespace hv {
 		sf::Sprite*  Sprite = nullptr;
 		sf::IntRect* Frames = nullptr;
 
-		SpriteSheet Mode = SpriteSheet::RightDown;
+		std::function<void()> OnStart	= 0;
+		std::function<void()> OnEnd		= 0;
 
-		std::function<void()> Function = 0;
-
-		void Create(uint32_t frameCountX, uint32_t frameCountY, uint32_t offset = 0,
+		void Create(uint32_t frameCountX, uint32_t frameCountY, SpriteSheet mode = SpriteSheet::RightDown, uint32_t offset = 0,
 			sf::Sprite* sprite = nullptr, sf::Texture* texture = nullptr);
 
 		void ApplyFrame(const sf::IntRect& frame);
 
 		void Restart(bool frame = false);
 
-		void GetImGuiInfo(const char* tabName);
+		void DisplayImGuiInfo(const char* tabName);
 
 		Animation();
 		~Animation();

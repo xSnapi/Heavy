@@ -3,15 +3,18 @@
 
 #include "Light World.hpp"
 #include "Heavy Utilities.hpp"
+#include "Heavy Math.hpp"
 #include "Camera.hpp"
 
 //TODO: delete
 #include "Input.hpp"
 
 namespace hv {
+	static sf::Color EDGE_COLOR = sf::Color(255, 0, 200);
+
 	LightRenderer::LightRenderer() {
-		LoadShaders();
-		InitShadowBox();
+		/*LoadShaders();
+		InitShadowBox();*/
 	}
 
 	LightRenderer::~LightRenderer() {
@@ -34,6 +37,9 @@ namespace hv {
 		}
 		else
 			renderer.draw(sf::Sprite(m_lightMask.getTexture()));
+
+		if (LightWorld::Get().m_debugDraw)
+			DebugDraw(renderer);
 	}
 
 	void LightRenderer::CreateLightMask() {
@@ -62,6 +68,7 @@ namespace hv {
 			m_texturer.setTexture(m_lightMaskBuffer.getTexture());
 
 			if (!shadows) {
+				m_spotShader.setUniform("u_shadow", m_shadowMaskBuffer.getTexture());
 				m_lightMask.draw(m_texturer, &m_spotShader);
 
 				m_texturer.setTexture(m_lightMask.getTexture());
@@ -192,12 +199,13 @@ namespace hv {
 
 		{
 			m_mergeShader.loadFromFile("temp/default.vert", "temp/merge.frag");
+			m_mergeShader.setUniform("u_level", LightWorld::Get().m_lightLevel);
 		}
 	}
 
 	void LightRenderer::InitShadowBox() {
 		sf::Vector2f center = Camera::Get().GetCenter();
-		sf::Vector2f size = Camera::Get().GetSize() / 2.0f;
+		sf::Vector2f size = Camera::Get().GetSize();
 
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center   - size),						 sf::Vector2f(center.x + size.x, center.y - size.y) }));
 		m_ShadowBox.push_back(new Edge({ sf::Vector2f(center.x + size.x, center.y - size.y), sf::Vector2f(center.x + size.x, center.y + size.y) }));
@@ -209,5 +217,35 @@ namespace hv {
 
 		for (auto& b : m_ShadowBox)
 			edges.insert(b);
+	}
+
+	void LightRenderer::DebugDraw(Renderer& renderer) {
+		m_Lines.clear();
+
+		const auto& flags = LightWorld::Get().m_flags;
+		//TODO: maybe change? 
+		if (flags > 4)
+			for (auto& e : LightWorld::Get().m_Edges) {
+				m_Lines.emplace_back(e->Start, EDGE_COLOR);
+				m_Lines.emplace_back(e->End, EDGE_COLOR);
+			}
+
+		if(flags > 0 && flags < 5)
+			for (auto& l : LightWorld::Get().m_Lights) {
+				Renderer::DrawCircle(renderer, l->Position, l->Radius, l->Color, false);
+				
+				//TODO: this shit dosen work 
+				//float attenuation = (1.0f - l->Attenuation) * l->LightPower;
+				float attenuation = 1.0f - l->Attenuation;
+				
+				attenuation = attenuation <= 0.55f ? attenuation * attenuation * attenuation : attenuation * attenuation;
+
+
+				if(attenuation > 0.0f && attenuation < 1.0f)
+					Renderer::DrawCircle(renderer, l->Position, l->Radius * attenuation, l->Color, false);
+			}
+
+		if (flags > 4)
+			renderer.draw(m_Lines.data(), m_Lines.size(), sf::Lines);
 	}
 }

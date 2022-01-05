@@ -44,13 +44,13 @@ namespace hv {
 
 		HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
 
-		// Singletons initialization
-		Camera		::Get().Init(&m_window);
-		LightWorld	::Get().Init(m_lightRenderer);
-		PhysicsWorld::Get().InitDebugDraw(m_window);
-
 		// Renderer initialization
 		InitRenderer();
+
+		// Singletons initialization
+		Camera		::Get().Init(m_renderer);
+		LightWorld	::Get().Init(m_lightRenderer);
+		PhysicsWorld::Get().InitDebugDraw(m_window);
 
 		#if ENABLE_IMGUI
 			ImGui::SFML::Init(m_window);
@@ -125,11 +125,13 @@ namespace hv {
 		#endif
 
 		Update();
-
-		Camera::Get().Update();
 	}
 
 	void Runtime::RendererDraw() {
+		//TODO: CHANGE RENDERING
+		Camera::Get().Update();
+
+		m_window.clear(m_renderer.ClearColor);
 		m_renderer.clear();
 
 		Render();
@@ -142,9 +144,8 @@ namespace hv {
 		}
 		else {
 			m_lightRenderer.DrawLights(m_renderer);
-
-			m_window.draw(m_renderer.GetFrame());
 		}
+
 
 		if(PhysicsWorld::Get().m_debugDrawEnabled)
 			PhysicsWorld::Get().m_world.DebugDraw();
@@ -188,6 +189,7 @@ namespace hv {
 	}
 
 	void Runtime::InitRenderer() {
+		m_renderer.SetWindow(m_window);
 		m_renderer.Resize(m_window.getSize());
 		m_lightRenderer.Resize(m_window.getSize());
 

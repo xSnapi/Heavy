@@ -2,7 +2,7 @@
 #include "b2_draw.hpp"
 
 #include "Collider.hpp"
-#include <SFML/Graphics.hpp>
+#include "Heavy Renderer.hpp"
 
 
 namespace hv {
@@ -69,48 +69,8 @@ namespace hv {
 	}
 
 	void b2DebugDraw::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) {
-		if (radius <= 0.0f)
-			return;
-
-		radius *= Constants::PPM;
-
-		sf::Vector2f position = center * Constants::PPM;
-
-		const uint32_t points = 32;
-		float angle = 360.0f / (float)points;
-
-		sf::Vector2f pos = position;
-
-		pos.y += radius; // starting point of circle
-
-		sf::Vertex vertices[points + 1];
-
-		sf::Transform t;
-		t.rotate(angle, position);
-
-		// We transform point around circle position for angle based on number of points
-		for (uint32_t i = 0; i <= points; i++) {
-			vertices[i] = sf::Vertex(pos, COLLIDER_COLOR);
-			pos = t.transformPoint(pos);
-		}
-
-		pos = position;
-		pos.y -= radius;
-
-		sf::Vertex line[2]; // We add line that goes throught middle of circle
-
-		t.rotate(-(angle - 45.0f), position);
-
-		line[0] = sf::Vertex(t.transformPoint(pos), COLLIDER_COLOR);
-
-		t.rotate(180.0f, position);
-
-		line[1] = sf::Vertex(t.transformPoint(pos), COLLIDER_COLOR);
-
-		if (m_window) {
-			m_window->draw(vertices, points + 1, sf::LineStrip);
-			m_window->draw(line, 2, sf::Lines);
-		}
+		if(m_window)
+			Renderer::DrawCircle(*m_window, center * Constants::PPM, radius * Constants::PPM);
 	}
 
 	void b2DebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {

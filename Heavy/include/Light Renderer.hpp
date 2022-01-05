@@ -7,7 +7,7 @@
 namespace std {
 	template<> struct hash<sf::Vector2f> {
 		std::size_t operator()(const sf::Vector2f& p) const noexcept {
-			return p(p);
+			return (size_t)(p.x + 10.0f * p.y);
 		}
 	};
 }
@@ -44,6 +44,8 @@ namespace hv {
 		void DrawLights(Renderer& renderer);
 
 	private:
+		sf::Sprite m_texturer;
+
 		sf::Shader m_spotShader;
 
 		sf::Shader m_mergeShader;
@@ -54,13 +56,14 @@ namespace hv {
 		sf::RenderTexture m_shadowMask;
 		sf::RenderTexture m_shadowMaskBuffer;
 
-		sf::Sprite m_texturer;
-
 		std::vector<Point>				 m_RayPoints;
 		std::vector<sf::Vertex>			 m_ShadowVertexArray;
 		std::unordered_set<sf::Vector2f> m_Vertices;
 
 		std::list<Edge*> m_ShadowBox;
+
+		// Debug Draw stuff
+		std::vector<sf::Vertex> m_Lines;
 
 		void CreateLightMask();
 		void CreateShadowMask(const Light& light);
@@ -73,6 +76,8 @@ namespace hv {
 
 		void LoadShaders();
 		void InitShadowBox();
+
+		void DebugDraw(Renderer& renderer);
 
 		friend class LightWorld;
 	};

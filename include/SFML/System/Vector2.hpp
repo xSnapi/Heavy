@@ -77,12 +77,6 @@ public:
     template <typename U>
     explicit Vector2(const Vector2<U>& vector);
 
-	template <typename T>
-	size_t operator ()(const Vector2<T>& toHash) const noexcept {
-		size_t hash = static_cast<size_t>(toHash.x + 10.0f * toHash.y);
-		return hash;
-	}
-
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
