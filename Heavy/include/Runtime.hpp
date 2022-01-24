@@ -32,13 +32,16 @@ namespace hv {
 		Runtime();
 		virtual ~Runtime();
 
+		void Run();
+		void Close();
+
+		static Runtime* GetInstance();
+
+	protected:
 		virtual void FixedUpdate()	= 0;
 		virtual void Update()	    = 0;
 		virtual void Render()	    = 0;
 
-		void Run();
-
-	protected:
 		sf::RenderWindow m_window;
 		sf::Event m_event;
 
@@ -58,6 +61,8 @@ namespace hv {
 		LightRenderer m_lightRenderer;
 
 		bool m_focus = true;
+
+		static Runtime* s_instance;
 
 		#if USE_MULTITHREAD
 			std::mutex	 m_mutex;

@@ -15,15 +15,21 @@ namespace hv {
 	static bool ImGuiUpdated = false;
 #endif
 
+	Runtime* Runtime::s_instance = nullptr;
+
 	Runtime::Runtime() 
 		: m_event()
 	{
 		EventDispatcher::Init(m_focus);
-		Input::Init(m_window);
+		Input::Init(m_window, m_renderer);
 
 		#if !DISABLE_CONSOLE
 			system("cls"); // <- cls makes colored output work
 		#endif
+
+		HV_DEBUG_ASSERT(!s_instance); // Instance of engine already exists
+
+		s_instance = this;
 	}
 
 	Runtime::~Runtime() {
@@ -108,6 +114,20 @@ namespace hv {
 		}
 	}
 
+	void Runtime::Close() {
+		#if USE_MULTITHREAD
+			m_isRunning = false;
+			m_rendererThread->join();
+		#endif
+
+		m_window.close();
+	}
+
+	Runtime* Runtime::GetInstance() {
+		HV_DEBUG_ASSERT(s_instance); // Runtime wasn't initialized
+		return s_instance;
+	}
+
 	void Runtime::FrameFixedUpdate() {
 		// Physics step settings
 		constexpr uint32_t velocityCorrection = 12;
@@ -167,13 +187,7 @@ namespace hv {
 
 			switch (m_event.type) {
 			case sf::Event::Closed:
-			
-				#if USE_MULTITHREAD
-					m_isRunning = false;
-					m_rendererThread->join();
-				#endif
-
-				m_window.close();
+				Close();
 				break;
 
 			case sf::Event::LostFocus:
