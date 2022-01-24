@@ -4,9 +4,14 @@
 	Collider.hpp
 */
 
-#include <SFML/System/Vector2.hpp>
-#include "Heavy Box2D.hpp"
 #include <functional>
+#include <vector>
+
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/System/Vector2.hpp>
+
+#include "Heavy Box2D.hpp"
 
 namespace hv {
 	class RigidBody;
@@ -24,8 +29,10 @@ namespace hv {
 
 		virtual void SetTriggered(bool triggered);
 
-		std::function<void()> Function;
+		std::function<void()> OnTriggerStart;
+		std::function<void()> OnTriggerEnd;
 
+		void SetRestitution(float restitution);
 	protected:
 		b2FixtureDef i_fixtureDef;
 
@@ -76,9 +83,17 @@ namespace hv {
 
 		// Modifiers
 		void AddPoints(sf::Vector2f start, sf::Vector2f end);
+		void DeletePoint(size_t index);
+		//void GetPoint(size_t index);
+		void SetPoint(sf::Vector2f start, sf::Vector2f end, size_t index);
+		void Clear();
+
+		std::vector<b2Fixture*>& Raw();
 	private:
 		b2EdgeShape m_shape;
 		b2Body* m_body;
+
+		std::vector<b2Fixture*> m_Fixtures;
 	};
 }
 
