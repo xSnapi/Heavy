@@ -10,8 +10,25 @@ namespace hv {
 
 	}
 
+	Animation::Animation(const Animation& animation) {
+
+	}
+
 	Animation::~Animation() {
 		delete[] Frames;
+	}
+
+	void Animation::CopyAnimation(const Animation& other) {
+		//TODO: check if working
+
+		*this = other;
+
+		if (FrameCount == 0)
+			return;
+
+		Frames = new sf::IntRect[other.FrameCount];
+
+		std::copy_n(other.Frames, FrameCount, Frames);
 	}
 
 	void Animation::Create
@@ -78,8 +95,8 @@ namespace hv {
 		}
 	}
 
-	void Animation::DisplayImGuiInfo(const char* tabName) {
-		if(ImGui::CollapsingHeader(tabName)) {
+	void Animation::DisplayImGuiInfo(const std::string& tabName) {
+		if(ImGui::CollapsingHeader(tabName.c_str())) {
 			ImGui::Text("Size: ");
 			ImGui::Indent(25.0f);
 			ImGui::Text("Width %d\nHeight %d", FrameWidth, FrameHeight);
@@ -101,6 +118,11 @@ namespace hv {
 			if (ImGui::Button("Restart"))
 				Restart(true);
 		}
+	}
+
+	Animation* Animation::operator=(const Animation& animation) {
+
+		return nullptr;
 	}
 }
 

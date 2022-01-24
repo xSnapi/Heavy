@@ -18,9 +18,6 @@ namespace hv {
 		~Animator();
 
 		void Play(Animation& animation);
-
-		bool IsPlaying(const Animation& animation);
-
 	private:
 
 		void Update(Animation& animation);
@@ -62,13 +59,20 @@ namespace hv {
 
 		void Restart(bool frame = false);
 
-		void DisplayImGuiInfo(const char* tabName);
+		void DisplayImGuiInfo(const std::string& tabName);
+
+		Animation* operator=(const Animation& animation);
 
 		Animation();
+
+		Animation(const Animation& animation);
+
 		~Animation();
 
 	private:
 		float m_elapsedTime = 0.0f;
+
+		void CopyAnimation(const Animation& other);
 
 		friend class Animator;
 	};
