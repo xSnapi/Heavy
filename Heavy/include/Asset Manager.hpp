@@ -18,6 +18,17 @@
 
 namespace hv {
 	template<typename T>
+	static bool Exists(const std::string& name, const std::unordered_map<std::string, T>& Resource) {
+		if (Resource.find(name) == Resource.end())
+			return true;
+
+		hv::Debug::Log(hv::Color::Yellow, "[Resource ", name, " already exists skipping]\n");
+		return false;
+	}
+}
+
+namespace hv {
+	template<typename T>
 	class ResourceLibrary {
 	public:
 		ResourceLibrary() { };
@@ -70,7 +81,7 @@ namespace hv {
 	public:
 		static TextureLibrary& Get() { return s_instance; }
 
-		virtual void Load(std::string name, const char* path) { i_Resources[name].loadFromFile(path); }
+		virtual void Load(std::string name, const char* path) { HV_DEBUG(if (!Exists(name, i_Resources)) return;); i_Resources[name].loadFromFile(path); }
 
 	private:
 		TextureLibrary() { };
@@ -85,7 +96,7 @@ namespace hv {
 	public:
 		static FontLibrary& Get() { return s_instance; }
 
-		virtual void Load(std::string name, const char* path) { i_Resources[name].loadFromFile(path); }
+		virtual void Load(std::string name, const char* path) { HV_DEBUG(if (!Exists(name, i_Resources)) return;); i_Resources[name].loadFromFile(path); }
 
 	private:
 		FontLibrary() { };
@@ -96,6 +107,12 @@ namespace hv {
 }
 
 namespace hv {
+	struct SoundPack
+	{
+		sf::SoundBuffer SoundBuffer;
+		sf::Sound		Sound;
+	};
+
 	class SoundLibrary {
 	public:
 		static SoundLibrary& Get() { return s_instance; }
@@ -108,16 +125,18 @@ namespace hv {
 		void LoadSound(std::string name, const char* path);
 		void LoadMusic(std::string name, const char* path);
 
-		sf::Sound& Sound(const char* name);
+		SoundPack& Sound(const char* name);
 		sf::Music& Music(const char* name);
+
+		std::unordered_map<std::string, sf::Music>& RawMusic();
+		std::unordered_map<std::string, SoundPack>& RawSound();
+
 	private:
 		SoundLibrary() { };
 		~SoundLibrary();
 
-		std::vector<sf::SoundBuffer*> m_Buffers;
-
 		std::unordered_map<std::string, sf::Music> m_Musics;
-		std::unordered_map<std::string, sf::Sound> m_Sounds;
+		std::unordered_map<std::string, SoundPack> m_Sounds;
 
 		static SoundLibrary s_instance;
 	};

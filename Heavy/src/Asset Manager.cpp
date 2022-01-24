@@ -6,6 +6,11 @@ namespace hv {
 	void ShaderLibrary::Load(std::string name, const char* path) { HV_ASSERT(false); }
 
 	void ShaderLibrary::Load(std::string name, const char* fragmentPath, const char* vertexPath) {
+		HV_DEBUG
+		(
+			if (!Exists(name, i_Resources)) return;
+		);
+
 		i_Resources[name].loadFromFile(
 			vertexPath,
 			fragmentPath
@@ -13,6 +18,11 @@ namespace hv {
 	}
 
 	void ShaderLibrary::LoadFromMemory(std::string name, const char* fragment, const char* vertex) {
+		HV_DEBUG
+		(
+			if (!Exists(name, i_Resources)) return;
+		);
+
 		i_Resources[name].loadFromMemory(
 			vertex,
 			fragment
@@ -22,45 +32,54 @@ namespace hv {
 	//// Sound Lib ////
 	void SoundLibrary::Update(const float& soundVol, const float& musicVol) {
 		for (auto& s : m_Sounds)
-			s.second.setVolume(soundVol);
+			s.second.Sound.setVolume(soundVol);
 
 		for (auto& m : m_Musics)
 			m.second.setVolume(musicVol);
 	}
 
-	void SoundLibrary::ClearSounds() {
-		for (auto& b : m_Buffers)
-			delete b;
-
-		m_Buffers.clear();
-	}
+	void SoundLibrary::ClearSounds() { m_Sounds.clear(); }
 
 	void SoundLibrary::ClearMusics() { m_Musics.clear(); }
 
-	// TODO: Check if async SOUND load creates thread error
-
 	// Sound and music volumes are set to 0 by default
 	void SoundLibrary::LoadSound(std::string name, const char* path) {
-		// We need SoundBuffer as a pointer so it dosen't change it reference if vector resized
-		m_Buffers.push_back(new sf::SoundBuffer());
-		m_Buffers.back()->loadFromFile(path);
+		HV_DEBUG
+		(
+			if (!Exists(name, m_Sounds)) return;
+		);
 
-		m_Sounds[name].setBuffer(*m_Buffers.back());
-		m_Sounds[name].setVolume(0.0f);
+		m_Sounds[name].SoundBuffer.loadFromFile(path);
+
+		m_Sounds[name].Sound.setBuffer(m_Sounds[name].SoundBuffer);
+		m_Sounds[name].Sound.setVolume(100.0f);
 	}
 
+	// Sound and music volumes are set to 0 by default
 	void SoundLibrary::LoadMusic(std::string name, const char* path) {
+		HV_DEBUG
+		(
+			if (!Exists(name, m_Musics)) return;
+		);
+
 		m_Musics[name].openFromFile(path);
-		m_Musics[name].setVolume(0.0f);
+		m_Musics[name].setVolume(100.0f);
 	}
 
-	sf::Sound& SoundLibrary::Sound(const char* name) { return m_Sounds[name]; }
+	SoundPack& SoundLibrary::Sound(const char* name) { return m_Sounds[name]; }
 
 	sf::Music& SoundLibrary::Music(const char* name) { return m_Musics[name]; }
 
+	std::unordered_map<std::string, sf::Music>& SoundLibrary::RawMusic() {
+		return m_Musics;
+	}
+
+	std::unordered_map<std::string, SoundPack>& SoundLibrary::RawSound() {
+		return m_Sounds;
+	}
+
 	SoundLibrary::~SoundLibrary() {
-		for (auto& b : m_Buffers)
-			delete b;
+		ClearSounds();
 	}
 
 	ShaderLibrary	ShaderLibrary::s_instance;

@@ -18,6 +18,12 @@ namespace hv {
         // Phrasing name and type to struct with pointer to equivalent function
         Resource res = GetResource(name, type);
 
+		HV_DEBUG
+		(
+			if (res.Fun == 0 || res.Raw == 0)
+				return;
+		);
+
         m_Results.push(std::async(
             std::launch::async,
             res.Fun,
@@ -27,6 +33,11 @@ namespace hv {
     }
 
     void AssetLoader::AddResource(const std::string& name, const std::string& fragment, const std::string& vertex, AssetType type) {
+		HV_DEBUG
+		(
+			if(!Exists(name, hv::ShaderLibrary::Get().Raw())) return;
+		);
+
         switch (type) {
         case AssetType::Shader:
 
@@ -67,16 +78,36 @@ namespace hv {
     AssetLoader::Resource AssetLoader::GetResource(const std::string& name, const AssetType& type) {
         switch (type) {
         case AssetType::Texture:
-            return { LoadTexture, &hv::TextureLibrary::Get().Raw()[name.c_str()] };
+			HV_DEBUG(if (!Exists(name, hv::TextureLibrary::Get().Raw())) return { };);
+            return { 
+				LoadTexture, 
+				&hv::TextureLibrary::Get().Raw()[name.c_str()] 
+			};
+
             break;
         case AssetType::Font:
-            return { LoadFont,  &hv::FontLibrary::Get().Raw()[name.c_str()] };
+			HV_DEBUG(if (!Exists(name, hv::FontLibrary::Get().Raw())) return { };);
+            return { 
+				LoadFont,  
+				&hv::FontLibrary::Get().Raw()[name.c_str()] 
+			};
+
             break;
         case AssetType::Sound:
-            return { LoadSound, &hv::SoundLibrary::Get().Sound(name.c_str()) };
+			HV_DEBUG(if (!Exists(name, hv::SoundLibrary::Get().RawSound())) return { };);
+            return { 
+				LoadSound, 
+				&hv::SoundLibrary::Get().Sound(name.c_str()) 
+			};
+
             break;
         case AssetType::Music:
-            return { LoadMusic, &hv::SoundLibrary::Get().Music(name.c_str()) };
+			HV_DEBUG(if (!Exists(name, hv::SoundLibrary::Get().RawMusic())) return { };);
+            return { 
+				LoadMusic, 
+				&hv::SoundLibrary::Get().Music(name.c_str()) 
+			};
+
             break;
         }
 
@@ -89,7 +120,14 @@ namespace hv {
 
     void AssetLoader::LoadMusic(void* res, std::string path) { ((sf::Music*)res)->openFromFile(path); }
 
-    void AssetLoader::LoadSound(void* res, std::string path) { ((sf::SoundBuffer*)res)->loadFromFile(path); }
+	void AssetLoader::LoadSound(void* res, std::string path) { 
+		SoundPack* buff = ((SoundPack*)res);  
+
+		buff->SoundBuffer.loadFromFile(path);
+
+		buff->Sound.setBuffer(buff->SoundBuffer);
+		buff->Sound.setVolume(0.0f);
+	}
 
     void AssetLoader::LoadShader(sf::Shader* res, std::string fragment, std::string vertex) {
         res->loadFromFile(
