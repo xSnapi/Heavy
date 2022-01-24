@@ -16,7 +16,8 @@ namespace hv {
 		m_elapsedTime += hv::dt;
 		while (m_elapsedTime >= m_updateTime) {
 
-			m_fun();
+			if(m_fun)
+				m_fun();
 
 			m_elapsedTime -= m_updateTime;
 		}
