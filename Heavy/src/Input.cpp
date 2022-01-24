@@ -41,7 +41,7 @@ namespace hv {
 		if (!s_window->getSystemHandle())
 			return { };
 
-		return s_window->mapPixelToCoords(sf::Mouse::getPosition(*s_window));
+		return s_window->mapPixelToCoords(sf::Mouse::getPosition(*s_window), s_renderer->getView());
 	}
 
 	sf::Vector2f Input::Mouse::GetPosition() {
@@ -55,11 +55,12 @@ namespace hv {
 		if (!s_window->getSystemHandle())
 			return { };
 
-		return s_window->mapPixelToCoords(sf::Mouse::getPosition());
+		return s_renderer->mapPixelToCoords(sf::Mouse::getPosition());
 	}
 
-	void Input::Init(sf::RenderWindow& window) {
-		s_window = &window;
+	void Input::Init(sf::RenderWindow& window, Renderer& renderer) {
+		s_window   = &window;
+		s_renderer = &renderer;
 
 		// Keyboard init
 		for (int i = -1; i < sf::Keyboard::KeyCount; i++)
@@ -91,4 +92,5 @@ namespace hv {
 	std::unordered_map<sf::Keyboard::Key, bool> Input::s_Keys;
 	std::unordered_map<sf::Mouse::Button, bool> Input::s_Buttons;
 	const sf::RenderWindow* Input::s_window;
+	const Renderer*			Input::s_renderer;
 }

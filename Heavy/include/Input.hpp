@@ -5,10 +5,12 @@
 	Class checking for user input can read it in not-repeating mode
 */
 
+#include <unordered_map>
+
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 
-#include <unordered_map>
+#include "Heavy Renderer.hpp"
 
 namespace hv {
 	class Input {
@@ -37,7 +39,7 @@ namespace hv {
 			static sf::Vector2f GetCoords();
 		};
 
-		static void Init(sf::RenderWindow& window);
+		static void Init(sf::RenderWindow& window, Renderer& renderer);
 		static void Update();
 		static void BlockInput();
 
@@ -45,6 +47,7 @@ namespace hv {
 		static std::unordered_map<sf::Mouse::Button, bool> s_Buttons;
 		static std::unordered_map<sf::Keyboard::Key, bool> s_Keys;
 
-		const static sf::RenderWindow* s_window;
+		const static sf::RenderWindow*  s_window;
+		const static Renderer*			s_renderer;
 	};
 }
