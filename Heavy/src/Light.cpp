@@ -160,17 +160,17 @@ namespace hv {
 		return m_light->Drawable;
 	}
 
-	void PointLight::DisplayImGuiInfo(const char* tabName) const {
-		if (ImGui::CollapsingHeader(tabName)) {
+	void PointLight::DisplayImGuiInfo(const std::string& tabName) {
+		if (ImGui::CollapsingHeader(tabName.c_str())) {
 			auto& changed = LightWorld::Get().m_changed;
 
-			float* pos[2]
+			float pos[2]
 			{
-				&m_light->Position.x,
-				&m_light->Position.y,
+				m_light->Position.x,
+				m_light->Position.y,
 			};
 
-			if (ImGui::DragFloat2("Position", *pos, 0.5f))
+			if (ImGui::DragFloat2("Position", pos, 0.5f))
 				changed = true;
 			if (ImGui::DragFloat("Radius", &m_light->Radius, 0.5f))
 				changed = true;
@@ -186,7 +186,7 @@ namespace hv {
 				(float)m_light->Color.b / 255.0f,
 			};
 
-			if (ImGui::ColorPicker3(tabName, color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_RGB)) {
+			if (ImGui::ColorPicker3(("#" + tabName).c_str(), color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_RGB)) {
 				m_light->Color = sf::Color(uint8_t(color[0] * 255.0f), uint8_t(color[1] * 255.0f), uint8_t(color[2] * 255.0f), 255);
 				changed = true;
 			}

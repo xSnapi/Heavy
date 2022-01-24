@@ -60,7 +60,7 @@ namespace hv {
 		float GetPower() const;
 		bool  GetDrawable() const;
 
-		void DisplayImGuiInfo(const char* tabName) const;
+		void DisplayImGuiInfo(const std::string& tabName);
 	private:
 		Light* m_light = nullptr;
 
