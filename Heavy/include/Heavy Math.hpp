@@ -104,6 +104,10 @@ namespace hv {
 		return var / abs(var);
 	}
 
+	inline sf::Vector2f Sign(const sf::Vector2f& var) {
+		return sf::Vector2f(var.x / abs(var.x), var.y / abs(var.y));
+	}
+
 	static sf::Vector2f Abs(sf::Vector2f v) {
 		v.x = (v.x < 0.0f ? -v.x : v.x);
 		v.y = (v.y < 0.0f ? -v.y : v.y);
