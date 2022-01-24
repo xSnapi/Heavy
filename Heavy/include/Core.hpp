@@ -24,6 +24,7 @@
 	#define HV_ASSERT(VAR) VAR
 	#define HV_DEBUG_ASSERT(VAR)
 	#define HV_TIME_FUNC(NAME)
+	#define HV_DEBUG(VAR)
 
 #else
 	#include <iostream>
@@ -39,6 +40,7 @@
 	#define HV_ASSERT(VAR) if(!(VAR))		__debugbreak();
 	#define HV_DEBUG_ASSERT(VAR) if(!(VAR))	__debugbreak();
 	#define HV_TIME_FUNC(NAME)				hv::ProfileTimer NAME(#NAME)
+	#define HV_DEBUG(VAR)					VAR
 
 	template<typename ...Args>
 	constexpr static void DEBUG_MESSAGE_LOG(Args&&... args) 
