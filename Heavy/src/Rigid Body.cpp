@@ -102,6 +102,10 @@ namespace hv {
 		m_body->ApplyForceToCenter(velocity, true);
 	}
 
+	void RigidBody::SetRotation(float angle) {
+		m_body->SetTransform(m_body->GetPosition(), (angle * HV_PI) / 180.0f);
+	}
+
 	sf::Vector2f RigidBody::GetPosition() const {
 		return (sf::Vector2f)m_body->GetPosition() * Constants::PPM;
 	}

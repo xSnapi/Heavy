@@ -28,6 +28,7 @@ namespace hv {
 		void SetLinearDrag(float drag);
 		void SetLinearVelocity(sf::Vector2f velocity);
 		void AddForce(sf::Vector2f velocity);
+		void SetRotation(float angle);
 
 		// Accessors
 		sf::Vector2f GetPosition() const;
