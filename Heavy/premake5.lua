@@ -37,6 +37,22 @@ project "Heavy"
       "/ignore:4006" 
    }
 
+   links {
+      "OptickCore.lib",
+      "opengl32.lib",
+      "openal32.lib",
+      "freetype.lib",
+      "winmm.lib",
+      "gdi32.lib",
+      "flac.lib",
+      "vorbisenc.lib",
+      "vorbisfile.lib",
+      "vorbis.lib",
+      "ogg.lib",
+      "ws2_32.lib",
+      "legacy_stdio_definitions.lib",
+   }
+
    filter "files:extlibs/**.cpp"
       flags { "NoPCH" }
 
@@ -51,19 +67,6 @@ project "Heavy"
       }
 
       links {
-         "OptickCore.lib",
-         "opengl32.lib",
-         "openal32.lib",
-         "freetype.lib",
-         "winmm.lib",
-         "gdi32.lib",
-         "flac.lib",
-         "vorbisenc.lib",
-         "vorbisfile.lib",
-         "vorbis.lib",
-         "ogg.lib",
-         "ws2_32.lib",
-         "legacy_stdio_definitions.lib",
          "sfml-graphics-s-d.lib",
          "sfml-window-s-d.lib",
          "sfml-system-s-d.lib",
@@ -82,19 +85,6 @@ project "Heavy"
       }
 
       links {
-         "OptickCore.lib",
-         "opengl32.lib",
-         "openal32.lib",
-         "freetype.lib",
-         "winmm.lib",
-         "gdi32.lib",
-         "flac.lib",
-         "vorbisenc.lib",
-         "vorbisfile.lib",
-         "vorbis.lib",
-         "ogg.lib",
-         "ws2_32.lib",
-         "legacy_stdio_definitions.lib",
          "sfml-graphics-s.lib",
          "sfml-window-s.lib",
          "sfml-system-s.lib",
