@@ -1,96 +1,110 @@
 #include <hvpch.h>
 #include "Input.hpp"
 
-namespace hv {
-	bool Input::Keyboard::KeyCheck(sf::Keyboard::Key key, bool repeat) {
-		bool pressed = sf::Keyboard::isKeyPressed(key);
+#include "Heavy ImGui.hpp"
 
-		if (repeat)
-			return pressed;
+using namespace hv;
 
-		if (!s_Keys[key] && pressed) {
-			s_Keys[key] = true;
-			return true;
-		}
+std::unordered_map<sf::Keyboard::Key, bool> Input::s_Keys;
+std::unordered_map<sf::Mouse::Button, bool> Input::s_Buttons;
+const sf::RenderWindow* Input::s_window;
+const Renderer*			Input::s_renderer;
 
-		return false;
+
+bool Input::Keyboard::KeyCheck(sf::Keyboard::Key key, bool repeat) {
+	bool pressed = sf::Keyboard::isKeyPressed(key);
+
+	if (repeat)
+		return pressed;
+
+	if (!s_Keys[key] && pressed) {
+		s_Keys[key] = true;
+		return true;
 	}
 
-	bool Input::Mouse::KeyCheck(sf::Mouse::Button key, bool repeat) {
-		bool pressed = sf::Mouse::isButtonPressed(key);
+	return false;
+}
 
-		if (repeat)
-			return pressed;
+bool Input::Mouse::KeyCheck(sf::Mouse::Button key, bool repeat) {
+	bool pressed = sf::Mouse::isButtonPressed(key);
 
-		if (!s_Buttons[key] && pressed) {
-			s_Buttons[key] = true;
-			return true;
-		}
+	if (repeat)
+		return pressed;
 
-		return false;
+	if (!s_Buttons[key] && pressed) {
+		s_Buttons[key] = true;
+		return true;
 	}
 
-	sf::Vector2f Input::Mouse::GetRelativePosition() {
-		if (!s_window->getSystemHandle())
-			return { };
+	return false;
+}
 
-		return sf::Vector2f(sf::Mouse::getPosition(*s_window));
+sf::Vector2f Input::Mouse::GetRelativePosition() {
+	if (!s_window->getSystemHandle())
+		return { };
+
+	return sf::Vector2f(sf::Mouse::getPosition(*s_window));
+}
+
+sf::Vector2f Input::Mouse::GetRelativeCoords() {
+	if (!s_window->getSystemHandle())
+		return { };
+
+	return s_window->mapPixelToCoords(sf::Mouse::getPosition(*s_window), s_renderer->getView());
+}
+
+sf::Vector2f Input::Mouse::GetPosition() {
+	if (!s_window->getSystemHandle())
+		return { };
+
+	return (sf::Vector2f)sf::Mouse::getPosition();
+}
+
+sf::Vector2f Input::Mouse::GetCoords() {
+	if (!s_window->getSystemHandle())
+		return { };
+
+	return s_renderer->mapPixelToCoords(sf::Mouse::getPosition());
+}
+
+void Input::Mouse::DisplayImGuiInfo(const std::string& tabName) {
+	if (ImGui::CollapsingHeader(tabName.c_str())) {
+		ImGui::Text("Mouse position\nrelative to camera:\n");
+		ImGui::Indent(10.0f);
+
+		sf::Vector2f mousePos(GetRelativeCoords());
+
+		ImGui::Text("X %f\nY %f", mousePos.x, mousePos.y);
 	}
+}
 
-	sf::Vector2f Input::Mouse::GetRelativeCoords() {
-		if (!s_window->getSystemHandle())
-			return { };
+void Input::Init(sf::RenderWindow& window, Renderer& renderer) {
+	s_window   = &window;
+	s_renderer = &renderer;
 
-		return s_window->mapPixelToCoords(sf::Mouse::getPosition(*s_window), s_renderer->getView());
-	}
+	// Keyboard init
+	for (int i = -1; i < sf::Keyboard::KeyCount; i++)
+		s_Keys[(sf::Keyboard::Key)i] = false;
 
-	sf::Vector2f Input::Mouse::GetPosition() {
-		if (!s_window->getSystemHandle())
-			return { };
+	// Mouse init
+	for (int i = 0; i < sf::Mouse::ButtonCount; i++)
+		s_Buttons[(sf::Mouse::Button)i] = false;
+}
 
-		return (sf::Vector2f)sf::Mouse::getPosition();
-	}
+void Input::Update() {
+	for (auto& key : s_Keys)
+		if (!sf::Keyboard::isKeyPressed(key.first))
+			key.second = false;
 
-	sf::Vector2f Input::Mouse::GetCoords() {
-		if (!s_window->getSystemHandle())
-			return { };
+	for (auto& button : s_Buttons)
+		if(!sf::Mouse::isButtonPressed(button.first))
+			button.second = false;
+}
 
-		return s_renderer->mapPixelToCoords(sf::Mouse::getPosition());
-	}
+void Input::BlockInput() {
+	for (auto& key : s_Keys)
+		key.second = true;
 
-	void Input::Init(sf::RenderWindow& window, Renderer& renderer) {
-		s_window   = &window;
-		s_renderer = &renderer;
-
-		// Keyboard init
-		for (int i = -1; i < sf::Keyboard::KeyCount; i++)
-			s_Keys[(sf::Keyboard::Key)i] = false;
-
-		// Mouse init
-		for (int i = 0; i < sf::Mouse::ButtonCount; i++)
-			s_Buttons[(sf::Mouse::Button)i] = false;
-	}
-
-	void Input::Update() {
-		for (auto& key : s_Keys)
-			if (!sf::Keyboard::isKeyPressed(key.first))
-				key.second = false;
-
-		for (auto& button : s_Buttons)
-			if(!sf::Mouse::isButtonPressed(button.first))
-				button.second = false;
-	}
-
-	void Input::BlockInput() {
-		for (auto& key : s_Keys)
-			key.second = true;
-
-		for (auto& button : s_Buttons)
-			button.second = true;
-	}
-
-	std::unordered_map<sf::Keyboard::Key, bool> Input::s_Keys;
-	std::unordered_map<sf::Mouse::Button, bool> Input::s_Buttons;
-	const sf::RenderWindow* Input::s_window;
-	const Renderer*			Input::s_renderer;
+	for (auto& button : s_Buttons)
+		button.second = true;
 }

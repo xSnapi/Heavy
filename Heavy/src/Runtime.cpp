@@ -10,238 +10,238 @@
 #include "Physics World.hpp"
 #include "Light World.hpp"
 
-namespace hv {
+using namespace hv;
+
 #if ENABLE_IMGUI
 	static bool ImGuiUpdated = false;
 #endif
 
-	Runtime* Runtime::s_instance = nullptr;
+Runtime* Runtime::s_instance = nullptr;
 
-	Runtime::Runtime() 
-		: m_event()
-	{
-		EventDispatcher::Init(m_focus);
-		Input::Init(m_window, m_renderer);
+Runtime::Runtime() 
+	: m_event()
+{
+	EventDispatcher::Init(m_focus);
+	Input::Init(m_window, m_renderer);
 
-		#if !DISABLE_CONSOLE
-			system("cls"); // <- cls makes colored output work
-		#endif
+	#if !DISABLE_CONSOLE
+		system("cls"); // <- cls makes colored output work
+	#endif
 
-		HV_DEBUG_ASSERT(!s_instance); // Instance of engine already exists
+	HV_DEBUG_ASSERT(!s_instance); // Instance of engine already exists
 
-		s_instance = this;
-	}
+	s_instance = this;
+}
 
-	Runtime::~Runtime() {
-		// Clearing asset libraries before exiting to make sure SFML won't try deleting them after destroying context
-		hv::TextureLibrary::Get().Clear();
-		hv::FontLibrary   ::Get().Clear();
-		hv::ShaderLibrary ::Get().Clear();
-		hv::SoundLibrary  ::Get().ClearSounds();
-		hv::SoundLibrary  ::Get().ClearMusics();
+Runtime::~Runtime() {
+	// Clearing asset libraries before exiting to make sure SFML won't try deleting them after destroying context
+	hv::TextureLibrary::Get().Clear();
+	hv::FontLibrary   ::Get().Clear();
+	hv::ShaderLibrary ::Get().Clear();
+	hv::SoundLibrary  ::Get().ClearSounds();
+	hv::SoundLibrary  ::Get().ClearMusics();
 
-		#if ENABLE_IMGUI
-			ImGui::SFML::Shutdown();
-		#endif
-	}
+	#if ENABLE_IMGUI
+		ImGui::SFML::Shutdown();
+	#endif
+}
 
-	void Runtime::Run() {
-		GLInit();
+void Runtime::Run() {
+	GLInit();
 
-		HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
+	HV_DEBUG_ASSERT(m_window.getSystemHandle()); // Window wasn't initialized before first update
 
-		// Renderer initialization
-		InitRenderer();
+	// Renderer initialization
+	InitRenderer();
 
-		// Singletons initialization
-		Camera		::Get().Init(m_renderer);
-		LightWorld	::Get().Init(m_lightRenderer);
-		PhysicsWorld::Get().InitDebugDraw(m_window);
+	// Singletons initialization
+	Camera		::Get().Init(m_renderer);
+	LightWorld	::Get().Init(m_lightRenderer);
+	PhysicsWorld::Get().InitDebugDraw(m_window);
 
-		#if ENABLE_IMGUI
-			ImGui::SFML::Init(m_window);
-		#endif
+	#if ENABLE_IMGUI
+		ImGui::SFML::Init(m_window);
+	#endif
 
-		while (m_window.isOpen()) {
-			HV_PROFILE_FRAME("MainThread");
-			
-			m_pet += Times::Instance.DT;
-			while (m_pet >= m_physicsStep) {
-				Times::Instance.FDT = m_fdtClock.restart().asSeconds();
-				if (Times::Instance.FDT >= m_physicsStep * 5.0f)
-					Times::Instance.FDT = (float)m_physicsStep;
-
-				#if USE_MULTITHREAD
-					m_mutex.lock();
-					
-					FrameFixedUpdate();
-
-					m_mutex.unlock();
-				#else
-					FrameFixedUpdate();
-				#endif
-
-				m_pet -= m_physicsStep;
-			}
-
-			m_focus = m_window.hasFocus();
-			HandleEvents();
+	while (m_window.isOpen()) {
+		HV_PROFILE_FRAME("MainThread");
+		
+		m_pet += Times::Instance.DT;
+		while (m_pet >= m_physicsStep) {
+			Times::Instance.FDT = m_fdtClock.restart().asSeconds();
+			if (Times::Instance.FDT >= m_physicsStep * 5.0f)
+				Times::Instance.FDT = (float)m_physicsStep;
 
 			#if USE_MULTITHREAD
 				m_mutex.lock();
-
-				FrameUpdate();
+				
+				FrameFixedUpdate();
 
 				m_mutex.unlock();
-
-				Delay();
 			#else
-				FrameUpdate();
+				FrameFixedUpdate();
+			#endif
+
+			m_pet -= m_physicsStep;
+		}
+
+		m_focus = m_window.hasFocus();
+		HandleEvents();
+
+		#if USE_MULTITHREAD
+			m_mutex.lock();
+
+			FrameUpdate();
+
+			m_mutex.unlock();
+
+			Delay();
+		#else
+			FrameUpdate();
+
+			RendererDraw();
+
+			m_window.display();
+		#endif
+
+		EventDispatcher::Clear();
+
+		if(m_focus)
+			Input::Update();
+
+		Times::Instance.DT = m_dtClock.restart().asSeconds();
+		if (dt >= 0.5f)
+			Times::Instance.DT = 0.03f;
+	}
+}
+
+void Runtime::Close() {
+	#if USE_MULTITHREAD
+		m_isRunning = false;
+		m_rendererThread->join();
+	#endif
+
+	m_window.close();
+}
+
+Runtime* Runtime::GetInstance() {
+	HV_DEBUG_ASSERT(s_instance); // Runtime wasn't initialized
+	return s_instance;
+}
+
+void Runtime::FrameFixedUpdate() {
+	// Physics step settings
+	constexpr uint32_t velocityCorrection = 12;
+	constexpr uint32_t positionCorrection = 8;
+
+	FixedUpdate();
+
+	PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
+}
+
+void Runtime::FrameUpdate() {
+	#if ENABLE_IMGUI
+		ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
+		ImGuiUpdated = true;
+	#endif
+
+	Update();
+}
+
+void Runtime::RendererDraw() {
+	//TODO: CHANGE RENDERING
+	Camera::Get().Update();
+
+	m_window.clear(m_renderer.ClearColor);
+	m_renderer.clear();
+
+	Render();
+
+	m_renderer.display();
+
+	// Drawing Heavy components
+	if (!LightWorld::Get().LightEnabled()) {
+		m_window.draw(m_renderer.GetFrame());
+	}
+	else {
+		m_lightRenderer.DrawLights(m_renderer);
+	}
+
+
+	if(PhysicsWorld::Get().m_debugDrawEnabled)
+		PhysicsWorld::Get().m_world.DebugDraw();
+	
+	#if ENABLE_IMGUI
+		if (ImGuiUpdated) // ImGui can't be rendered before first update (i hate multithreading)
+			ImGui::SFML::Render(m_window);
+	#endif
+}
+
+void Runtime::HandleEvents() {
+	while (m_window.pollEvent(m_event)) {
+
+		#if ENABLE_IMGUI
+			ImGui::SFML::ProcessEvent(m_event);
+		#endif
+
+		EventDispatcher::DispatchEvent(m_event);
+
+		switch (m_event.type) {
+		case sf::Event::Closed:
+			Close();
+			break;
+
+		case sf::Event::LostFocus:
+			Input::BlockInput();
+			break;
+
+		case sf::Event::Resized:
+			m_lightRenderer.Resize(m_window.getSize());
+			m_renderer.Resize(m_window.getSize());
+			break;
+		}
+	}
+}
+
+void Runtime::InitRenderer() {
+	m_renderer.SetWindow(m_window);
+	m_renderer.Resize(m_window.getSize());
+	m_lightRenderer.Resize(m_window.getSize());
+
+	#if USE_MULTITHREAD
+		m_window.setActive(false);
+
+		m_rendererThread = new std::thread([&]() {
+			HV_PROFILE_THREAD("RendererThread");
+
+			m_window.setActive(true);
+
+			while (m_isRunning) {
+				m_mutex.lock();
 
 				RendererDraw();
 
+				m_mutex.unlock();
+
 				m_window.display();
-			#endif
-
-			EventDispatcher::Clear();
-
-			if(m_focus)
-				Input::Update();
-
-			Times::Instance.DT = m_dtClock.restart().asSeconds();
-			if (dt >= 0.5f)
-				Times::Instance.DT = 0.03f;
-		}
-	}
-
-	void Runtime::Close() {
-		#if USE_MULTITHREAD
-			m_isRunning = false;
-			m_rendererThread->join();
-		#endif
-
-		m_window.close();
-	}
-
-	Runtime* Runtime::GetInstance() {
-		HV_DEBUG_ASSERT(s_instance); // Runtime wasn't initialized
-		return s_instance;
-	}
-
-	void Runtime::FrameFixedUpdate() {
-		// Physics step settings
-		constexpr uint32_t velocityCorrection = 12;
-		constexpr uint32_t positionCorrection = 8;
-
-		FixedUpdate();
-
-		PhysicsWorld::Get().m_world.Step((float)m_physicsStep + 0.01f, velocityCorrection, positionCorrection);
-	}
-
-	void Runtime::FrameUpdate() {
-		#if ENABLE_IMGUI
-			ImGui::SFML::Update(m_window, sf::Time(sf::seconds(dt)));
-			ImGuiUpdated = true;
-		#endif
-
-		Update();
-	}
-
-	void Runtime::RendererDraw() {
-		//TODO: CHANGE RENDERING
-		Camera::Get().Update();
-
-		m_window.clear(m_renderer.ClearColor);
-		m_renderer.clear();
-
-		Render();
-
-		m_renderer.display();
-
-		// Drawing Heavy components
-		if (!LightWorld::Get().LightEnabled()) {
-			m_window.draw(m_renderer.GetFrame());
-		}
-		else {
-			m_lightRenderer.DrawLights(m_renderer);
-		}
-
-
-		if(PhysicsWorld::Get().m_debugDrawEnabled)
-			PhysicsWorld::Get().m_world.DebugDraw();
-		
-		#if ENABLE_IMGUI
-			if (ImGuiUpdated) // ImGui can't be rendered before first update (i hate multithreading)
-				ImGui::SFML::Render(m_window);
-		#endif
-	}
-
-	void Runtime::HandleEvents() {
-		while (m_window.pollEvent(m_event)) {
-
-			#if ENABLE_IMGUI
-				ImGui::SFML::ProcessEvent(m_event);
-			#endif
-
-			EventDispatcher::DispatchEvent(m_event);
-
-			switch (m_event.type) {
-			case sf::Event::Closed:
-				Close();
-				break;
-
-			case sf::Event::LostFocus:
-				Input::BlockInput();
-				break;
-
-			case sf::Event::Resized:
-				m_lightRenderer.Resize(m_window.getSize());
-				m_renderer.Resize(m_window.getSize());
-				break;
 			}
-		}
-	}
+			
+			Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
+		});
+	#endif
+}
 
-	void Runtime::InitRenderer() {
-		m_renderer.SetWindow(m_window);
-		m_renderer.Resize(m_window.getSize());
-		m_lightRenderer.Resize(m_window.getSize());
+void Runtime::SetFrameLimit(uint32_t limit) {
+	m_frameLimit = limit;
+	m_window.setFramerateLimit(limit);
+}
 
-		#if USE_MULTITHREAD
-			m_window.setActive(false);
+void Runtime::Delay(){
+	if (m_frameLimit != 0)
+		sf::sleep(sf::seconds((float)(1.0 / m_frameLimit))); // This here must be double converted to float otherwise application will blow up
+}
 
-			m_rendererThread = new std::thread([&]() {
-				HV_PROFILE_THREAD("RendererThread");
-
-				m_window.setActive(true);
-
-				while (m_isRunning) {
-					m_mutex.lock();
-
-					RendererDraw();
-
-					m_mutex.unlock();
-
-					m_window.display();
-				}
-				
-				Debug::Log(Color::Green, "[Renderer Exited successfully]\n");
-			});
-		#endif
-	}
-
-	void Runtime::SetFrameLimit(uint32_t limit) {
-		m_frameLimit = limit;
-		m_window.setFramerateLimit(limit);
-	}
-
-	void Runtime::Delay(){
-		if (m_frameLimit != 0)
-			sf::sleep(sf::seconds((float)(1.0 / m_frameLimit))); // This here must be double converted to float otherwise application will blow up
-	}
-
-	void Runtime::GLInit() {
-		glLineWidth(1.0f);
-		glPointSize(2.0f);
-	}
+void Runtime::GLInit() {
+	glLineWidth(1.0f);
+	glPointSize(2.0f);
 }

@@ -1,90 +1,89 @@
 #include <hvpch.h>
 #include "Asset Manager.hpp"
 
-namespace hv {
-	//// Shader Lib ////
-	void ShaderLibrary::Load(std::string name, const char* path) { HV_ASSERT(false); }
+using namespace hv;
 
-	void ShaderLibrary::Load(std::string name, const char* fragmentPath, const char* vertexPath) {
-		HV_DEBUG
-		(
-			if (!Exists(name, i_Resources)) return;
-		);
+ShaderLibrary	ShaderLibrary::s_instance;
+TextureLibrary  TextureLibrary::s_instance;
+FontLibrary		FontLibrary::s_instance;
+SoundLibrary	SoundLibrary::s_instance;
 
-		i_Resources[name].loadFromFile(
-			vertexPath,
-			fragmentPath
-		);
-	}
+//// Shader Lib ////
+void ShaderLibrary::Load(std::string name, const char* path) { HV_ASSERT(false); }
 
-	void ShaderLibrary::LoadFromMemory(std::string name, const char* fragment, const char* vertex) {
-		HV_DEBUG
-		(
-			if (!Exists(name, i_Resources)) return;
-		);
+void ShaderLibrary::Load(std::string name, const char* fragmentPath, const char* vertexPath) {
+	HV_DEBUG
+	(
+		if (!Exists(name, i_Resources)) return;
+	);
 
-		i_Resources[name].loadFromMemory(
-			vertex,
-			fragment
-		);
-	}
+	i_Resources[name].loadFromFile(
+		vertexPath,
+		fragmentPath
+	);
+}
 
-	//// Sound Lib ////
-	void SoundLibrary::Update(const float& soundVol, const float& musicVol) {
-		for (auto& s : m_Sounds)
-			s.second.Sound.setVolume(soundVol);
+void ShaderLibrary::LoadFromMemory(std::string name, const char* fragment, const char* vertex) {
+	HV_DEBUG
+	(
+		if (!Exists(name, i_Resources)) return;
+	);
 
-		for (auto& m : m_Musics)
-			m.second.setVolume(musicVol);
-	}
+	i_Resources[name].loadFromMemory(
+		vertex,
+		fragment
+	);
+}
 
-	void SoundLibrary::ClearSounds() { m_Sounds.clear(); }
+//// Sound Lib ////
+void SoundLibrary::Update(const float& soundVol, const float& musicVol) {
+	for (auto& s : m_Sounds)
+		s.second.Sound.setVolume(soundVol);
 
-	void SoundLibrary::ClearMusics() { m_Musics.clear(); }
+	for (auto& m : m_Musics)
+		m.second.setVolume(musicVol);
+}
 
-	// Sound and music volumes are set to 0 by default
-	void SoundLibrary::LoadSound(std::string name, const char* path) {
-		HV_DEBUG
-		(
-			if (!Exists(name, m_Sounds)) return;
-		);
+void SoundLibrary::ClearSounds() { m_Sounds.clear(); }
 
-		m_Sounds[name].SoundBuffer.loadFromFile(path);
+void SoundLibrary::ClearMusics() { m_Musics.clear(); }
 
-		m_Sounds[name].Sound.setBuffer(m_Sounds[name].SoundBuffer);
-		m_Sounds[name].Sound.setVolume(100.0f);
-	}
+// Sound and music volumes are set to 0 by default
+void SoundLibrary::LoadSound(std::string name, const char* path) {
+	HV_DEBUG
+	(
+		if (!Exists(name, m_Sounds)) return;
+	);
 
-	// Sound and music volumes are set to 0 by default
-	void SoundLibrary::LoadMusic(std::string name, const char* path) {
-		HV_DEBUG
-		(
-			if (!Exists(name, m_Musics)) return;
-		);
+	m_Sounds[name].SoundBuffer.loadFromFile(path);
 
-		m_Musics[name].openFromFile(path);
-		m_Musics[name].setVolume(100.0f);
-	}
+	m_Sounds[name].Sound.setBuffer(m_Sounds[name].SoundBuffer);
+	m_Sounds[name].Sound.setVolume(100.0f);
+}
 
-	SoundPack& SoundLibrary::Sound(const char* name) { return m_Sounds[name]; }
+// Sound and music volumes are set to 0 by default
+void SoundLibrary::LoadMusic(std::string name, const char* path) {
+	HV_DEBUG
+	(
+		if (!Exists(name, m_Musics)) return;
+	);
 
-	sf::Music& SoundLibrary::Music(const char* name) { return m_Musics[name]; }
+	m_Musics[name].openFromFile(path);
+	m_Musics[name].setVolume(100.0f);
+}
 
-	std::unordered_map<std::string, sf::Music>& SoundLibrary::RawMusic() {
-		return m_Musics;
-	}
+SoundPack& SoundLibrary::Sound(const char* name) { return m_Sounds[name]; }
 
-	std::unordered_map<std::string, SoundPack>& SoundLibrary::RawSound() {
-		return m_Sounds;
-	}
+sf::Music& SoundLibrary::Music(const char* name) { return m_Musics[name]; }
 
-	SoundLibrary::~SoundLibrary() {
-		ClearSounds();
-	}
+std::unordered_map<std::string, sf::Music>& SoundLibrary::RawMusic() {
+	return m_Musics;
+}
 
-	ShaderLibrary	ShaderLibrary::s_instance;
-	TextureLibrary  TextureLibrary::s_instance;
-	FontLibrary		FontLibrary::s_instance;
-	SoundLibrary	SoundLibrary::s_instance;
+std::unordered_map<std::string, SoundPack>& SoundLibrary::RawSound() {
+	return m_Sounds;
+}
 
+SoundLibrary::~SoundLibrary() {
+	ClearSounds();
 }
